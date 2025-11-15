@@ -77,6 +77,18 @@ git branch -a
 
 Deberías ver que estás en la rama `master` y que hay una rama `desarrollo` también.
 
+### ⚠️ IMPORTANTE: Después de Clonar
+
+Una vez que hayas clonado el repositorio, **debes seguir la [Guía de Instalación](GUIA_INSTALACION.md)** para:
+
+- Instalar las dependencias (Composer, npm)
+- Configurar el archivo `.env`
+- Crear la base de datos
+- Ejecutar migraciones y seeders
+- Compilar los assets frontend
+
+**No podrás trabajar en el proyecto hasta completar la instalación.**
+
 ---
 
 ## 🔄 Flujo de Trabajo Completo
