@@ -15,38 +15,41 @@ class AttendanceController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $query = \App\Models\Attendance_list::with(['student.group', 'instructor']);
         
-        // Instructores solo ven asistencias de sus grupos
-        if ($user->isInstructor()) {
-            $assignments = \App\Models\CompetenciaGroupInstructor::where('instructor_id', $user->id)->get();
-            $groupIds = $assignments->pluck('group_id')->unique();
-            
+        // Verificar permisos
+        if (!$user->canManageAttendance()) {
+            abort(403, 'No tienes permiso para gestionar asistencias.');
+        }
+        
+        $groupIds = $user->getAccessibleGroupIds();
+        $query = \App\Models\Attendance_list::with(['student.group.program', 'instructor', 'competencia']);
+        
+        // Filtrar por grupos accesibles
+        if ($user->isInstructor() || $user->isStudent()) {
             $query->whereHas('student', function($q) use ($groupIds) {
                 $q->whereIn('group_id', $groupIds);
             });
         }
 
+        // Filtros
         if ($request->has('fecha') && $request->fecha != '') {
             $query->whereDate('fecha', $request->fecha);
         }
 
-        if ($request->has('group_id') && $request->group_id != '') {
+        if ($request->has('group_id') && $request->group_id != '' && ($groupIds->contains($request->group_id) || $user->canManageAcademicStructure())) {
             $query->whereHas('student', function($q) use ($request) {
                 $q->where('group_id', $request->group_id);
             });
         }
 
-        $attendances = $query->latest('fecha')->paginate(20);
+        $attendances = $query->latest('fecha')->latest('id')->paginate(20);
         
         // Filtrar grupos según rol
-        $groups = \App\Models\Group::where('activo', true);
-        if ($user->isInstructor()) {
-            $assignments = \App\Models\CompetenciaGroupInstructor::where('instructor_id', $user->id)->get();
-            $groupIds = $assignments->pluck('group_id')->unique();
-            $groups->whereIn('id', $groupIds);
+        $groupsQuery = \App\Models\Group::with('program')->where('activo', true);
+        if ($user->isInstructor() || $user->isStudent()) {
+            $groupsQuery->whereIn('id', $groupIds);
         }
-        $groups = $groups->get();
+        $groups = $groupsQuery->orderBy('numero_ficha')->get();
 
         return view('attendance_lists.index', compact('attendances', 'groups'));
     }
@@ -55,29 +58,27 @@ class AttendanceController extends Controller
     {
         $user = auth()->user();
         
-        // Filtrar grupos según rol
-        $groups = \App\Models\Group::with('program')->where('activo', true);
-        if ($user->isInstructor()) {
-            $assignments = \App\Models\CompetenciaGroupInstructor::where('instructor_id', $user->id)->get();
-            $groupIds = $assignments->pluck('group_id')->unique();
-            $groups->whereIn('id', $groupIds);
+        // Verificar permiso para gestionar asistencias
+        if (!$user->canManageAttendance()) {
+            abort(403, 'No tienes permiso para gestionar asistencias.');
         }
-        $groups = $groups->get();
+        
+        // Filtrar grupos según rol (optimizado)
+        $groupIds = $user->getAccessibleGroupIds();
+        $groupsQuery = \App\Models\Group::with('program')->where('activo', true);
+        if ($user->isInstructor()) {
+            $groupsQuery->whereIn('id', $groupIds);
+        }
+        $groups = $groupsQuery->orderBy('numero_ficha')->get();
         
         $instructors = \App\Models\Instructor::where('activo', true)->get();
         $students = collect();
         $competencias = collect();
 
         if ($request->has('group_id') && $request->group_id != '') {
-            // Verificar que el instructor tenga acceso a este grupo
-            if ($user->isInstructor()) {
-                $hasAccess = \App\Models\CompetenciaGroupInstructor::where('instructor_id', $user->id)
-                    ->where('group_id', $request->group_id)
-                    ->exists();
-                    
-                if (!$hasAccess) {
-                    abort(403, 'No tienes permiso para tomar asistencia en este grupo.');
-                }
+            // Verificar que tenga acceso a este grupo
+            if (!$user->canManageAttendanceForGroup($request->group_id)) {
+                abort(403, 'No tienes permiso para tomar asistencia en este grupo.');
             }
             
             $group = \App\Models\Group::find($request->group_id);

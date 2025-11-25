@@ -11,10 +11,14 @@
                 </div>
 
                 <!-- Navigation Links -->
+                @auth
+                @php $user = Auth::user(); @endphp
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    
+                    @if($user->canManageAcademicStructure())
                     <x-nav-link href="{{ route('students.index') }}" :active="request()->routeIs('students.*')">
                         Estudiantes
                     </x-nav-link>
@@ -27,10 +31,21 @@
                     <x-nav-link href="{{ route('instructors.index') }}" :active="request()->routeIs('instructors.*')">
                         Instructores
                     </x-nav-link>
-                    <x-nav-link href="{{ route('attendance.index') }}" :active="request()->routeIs('attendance.*')">
+                    @endif
+                    
+                    @if($user->canManageAttendance())
+                    <x-nav-link href="{{ route('attendance-lists.index') }}" :active="request()->routeIs('attendance-lists.*')">
                         Asistencias
                     </x-nav-link>
+                    @endif
+                    
+                    @if($user->canGrade())
+                    <x-nav-link href="{{ route('grading.index') }}" :active="request()->routeIs('grading.*')">
+                        Calificaciones
+                    </x-nav-link>
+                    @endif
                 </div>
+                @endauth
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ms-6">

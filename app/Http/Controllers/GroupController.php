@@ -14,9 +14,16 @@ class GroupController extends Controller
      */
     public function index(Request $request)
     {
-        $query = \App\Models\Group::with('program')->withCount('students');
+        $user = auth()->user();
+        
+        // Verificar permisos
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para gestionar grupos.');
+        }
+        
+        $query = \App\Models\Group::with(['program', 'students'])->withCount('students')->where('activo', true);
 
-        if ($request->has('search')) {
+        if ($request->has('search') && $request->search) {
             $query->where('numero_ficha', 'like', "%{$request->search}%");
         }
 
@@ -28,8 +35,8 @@ class GroupController extends Controller
             $query->where('jornada', $request->jornada);
         }
 
-        $groups = $query->paginate(10);
-        $programs = \App\Models\Program::where('activo', true)->get();
+        $groups = $query->orderBy('numero_ficha')->paginate(15);
+        $programs = \App\Models\Program::where('activo', true)->orderBy('nombre')->get();
 
         return view('groups.index', compact('groups', 'programs'));
     }

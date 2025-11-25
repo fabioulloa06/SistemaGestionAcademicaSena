@@ -15,16 +15,21 @@ class GradingController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $groups = Group::with('program')->where('activo', true);
+        
+        // Verificar permiso para calificar
+        if (!$user->canGrade()) {
+            abort(403, 'No tienes permiso para acceder a la gestión de calificaciones.');
+        }
+        
+        $groupIds = $user->getAccessibleGroupIds();
+        $groupsQuery = Group::with(['program', 'students'])->where('activo', true);
         
         // Instructores solo ven sus grupos asignados
         if ($user->isInstructor()) {
-            $assignments = \App\Models\CompetenciaGroupInstructor::where('instructor_id', $user->id)->get();
-            $groupIds = $assignments->pluck('group_id')->unique();
-            $groups->whereIn('id', $groupIds);
+            $groupsQuery->whereIn('id', $groupIds);
         }
         
-        $groups = $groups->get();
+        $groups = $groupsQuery->orderBy('numero_ficha')->get();
         return view('grading.index', compact('groups'));
     }
 
@@ -32,33 +37,44 @@ class GradingController extends Controller
     {
         $user = auth()->user();
         
+        // Verificar permiso para calificar
+        if (!$user->canGrade()) {
+            abort(403, 'No tienes permiso para calificar.');
+        }
+        
         // Verificar que el instructor tenga acceso a este grupo
         if ($user->isInstructor()) {
-            $hasAccess = \App\Models\CompetenciaGroupInstructor::where('instructor_id', $user->id)
-                ->where('group_id', $group->id)
-                ->exists();
-                
-            if (!$hasAccess) {
+            $groupIds = $user->getAccessibleGroupIds();
+            if (!$groupIds->contains($group->id)) {
                 abort(403, 'No tienes permiso para calificar este grupo.');
             }
         }
         
-        $students = $group->students;
-        $competencias = $group->program->competencias()->with('learningOutcomes')->get();
+        $students = $group->students()->where('activo', true)->orderBy('nombre')->get();
+        $competenciasQuery = $group->program->competencias()->with(['learningOutcomes']);
         
-        // Si es instructor, filtrar solo sus competencias asignadas
+        // Si es instructor, filtrar solo sus competencias asignadas (optimizado)
         if ($user->isInstructor()) {
             $assignedCompetenciaIds = \App\Models\CompetenciaGroupInstructor::where('instructor_id', $user->id)
                 ->where('group_id', $group->id)
                 ->pluck('competencia_id');
-            $competencias = $competencias->whereIn('id', $assignedCompetenciaIds);
+            $competenciasQuery->whereIn('id', $assignedCompetenciaIds);
         }
+        
+        $competencias = $competenciasQuery->orderBy('nombre')->get();
         
         return view('grading.grade', compact('group', 'students', 'competencias'));
     }
 
     public function store(Request $request)
     {
+        $user = auth()->user();
+        
+        // Verificar permiso para calificar
+        if (!$user->canGrade()) {
+            abort(403, 'No tienes permiso para calificar.');
+        }
+        
         $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
             'learning_outcome_id' => 'required|exists:learning_outcomes,id',
@@ -67,20 +83,11 @@ class GradingController extends Controller
             'fecha_evaluacion' => 'required|date',
         ]);
 
-        $user = auth()->user();
         $validated['instructor_id'] = $user->id;
         
         // Verificar que el instructor tenga permiso para calificar este resultado de aprendizaje
         if ($user->isInstructor()) {
-            $learningOutcome = LearningOutcome::find($validated['learning_outcome_id']);
-            $student = Student::find($validated['student_id']);
-            
-            $hasAccess = \App\Models\CompetenciaGroupInstructor::where('instructor_id', $user->id)
-                ->where('group_id', $student->group_id)
-                ->where('competencia_id', $learningOutcome->competencia_id)
-                ->exists();
-                
-            if (!$hasAccess) {
+            if (!$user->canGradeLearningOutcome($validated['learning_outcome_id'])) {
                 return redirect()->back()->withErrors(['error' => 'No tienes permiso para calificar este resultado de aprendizaje.']);
             }
         }

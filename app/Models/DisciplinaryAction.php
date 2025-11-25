@@ -17,6 +17,7 @@ class DisciplinaryAction extends Model
         'description',
         'date',
         'disciplinary_fault_id',
+        'academic_fault_id',
         'orientations_or_recommendations',
     ];
 
@@ -32,6 +33,11 @@ class DisciplinaryAction extends Model
     public function disciplinaryFault()
     {
         return $this->belongsTo(DisciplinaryFault::class);
+    }
+
+    public function academicFault()
+    {
+        return $this->belongsTo(AcademicFault::class);
     }
 
     public function improvementPlan()

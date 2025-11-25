@@ -11,15 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('competencias', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('program_id')->constrained()->onDelete('cascade');
-            $table->string('codigo')->unique(); // Ej: "210101001"
-            $table->string('nombre');
-            $table->text('descripcion')->nullable();
-            $table->boolean('activo')->default(true);
-            $table->timestamps();
-        });
+        // Verificar si la tabla ya existe (puede tener estructura diferente)
+        if (!Schema::hasTable('competencias')) {
+            Schema::create('competencias', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('program_id')->constrained()->onDelete('cascade');
+                $table->string('codigo')->unique(); // Ej: "210101001"
+                $table->string('nombre');
+                $table->text('descripcion')->nullable();
+                $table->boolean('activo')->default(true);
+                $table->timestamps();
+            });
+        }
     }
 
     /**

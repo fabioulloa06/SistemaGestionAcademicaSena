@@ -15,17 +15,22 @@ class StudentController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $query = \App\Models\Student::with('group.program');
+        
+        // Verificar permisos
+        if (!$user->canManageAcademicStructure() && !$user->isInstructor()) {
+            abort(403, 'No tienes permiso para ver estudiantes.');
+        }
+        
+        $groupIds = $user->getAccessibleGroupIds();
+        $query = \App\Models\Student::with(['group.program', 'user'])->where('activo', true);
 
-        // Instructores solo ven estudiantes de sus grupos asignados
-        if ($user->isInstructor()) {
-            $assignments = \App\Models\CompetenciaGroupInstructor::where('instructor_id', $user->id)->get();
-            $groupIds = $assignments->pluck('group_id')->unique();
-            
+        // Filtrar por grupos accesibles
+        if ($user->isInstructor() || $user->isStudent()) {
             $query->whereIn('group_id', $groupIds);
         }
 
-        if ($request->has('search')) {
+        // Búsqueda
+        if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('nombre', 'like', "%{$search}%")
@@ -34,20 +39,22 @@ class StudentController extends Controller
             });
         }
 
+        // Filtro por grupo
         if ($request->has('grupo_id') && $request->grupo_id != '') {
-            $query->where('group_id', $request->grupo_id);
+            // Verificar que el grupo sea accesible
+            if ($groupIds->contains($request->grupo_id) || $user->canManageAcademicStructure()) {
+                $query->where('group_id', $request->grupo_id);
+            }
         }
 
-        $students = $query->paginate(10);
+        $students = $query->orderBy('nombre')->paginate(15);
         
         // Filtrar grupos según rol
-        $groups = \App\Models\Group::with('program');
-        if ($user->isInstructor()) {
-            $assignments = \App\Models\CompetenciaGroupInstructor::where('instructor_id', $user->id)->get();
-            $groupIds = $assignments->pluck('group_id')->unique();
-            $groups->whereIn('id', $groupIds);
+        $groupsQuery = \App\Models\Group::with('program')->where('activo', true);
+        if ($user->isInstructor() || $user->isStudent()) {
+            $groupsQuery->whereIn('id', $groupIds);
         }
-        $groups = $groups->get();
+        $groups = $groupsQuery->orderBy('numero_ficha')->get();
 
         return view('students.index', compact('students', 'groups'));
     }

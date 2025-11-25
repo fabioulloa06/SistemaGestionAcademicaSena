@@ -1,21 +1,104 @@
 @echo off
-echo Iniciando servidor Laravel y Vite...
+echo ====================================================
+echo    INICIANDO SISTEMA DE GESTION ACADEMICA SENA
+echo ====================================================
+echo.
+
+REM Verificar que existe .env
+if not exist .env (
+    echo [ERROR] El archivo .env no existe.
+    echo [INFO] Creando archivo .env desde .env.example...
+    if exist .env.example (
+        copy .env.example .env >nul
+        echo [INFO] Archivo .env creado. Ejecuta 'php artisan key:generate' si es necesario.
+    ) else (
+        echo [ERROR] No se encontro .env.example. Por favor, crea el archivo .env manualmente.
+        pause
+        exit /b 1
+    )
+)
+
+REM Verificar que existen las dependencias de Composer
+if not exist vendor\autoload.php (
+    echo [INFO] Las dependencias de Composer no estan instaladas.
+    echo [INFO] Instalando dependencias de Composer...
+    php composer.phar install
+    if errorlevel 1 (
+        echo [ERROR] Error al instalar dependencias de Composer.
+        pause
+        exit /b 1
+    )
+)
+
+REM Verificar que existen las dependencias de npm
+if not exist node_modules (
+    echo [INFO] Las dependencias de npm no estan instaladas.
+    echo [INFO] Instalando dependencias de npm...
+    call npm install
+    if errorlevel 1 (
+        echo [ERROR] Error al instalar dependencias de npm.
+        pause
+        exit /b 1
+    )
+)
+
+REM Verificar que existe el manifest de Vite (compilar si no existe)
+if not exist public\build\manifest.json (
+    echo [INFO] Los assets no estan compilados.
+    echo [INFO] Compilando assets de produccion...
+    call npm run build
+    if errorlevel 1 (
+        echo [ERROR] Error al compilar los assets.
+        echo [INFO] Intentando con modo desarrollo...
+        start "Vite Dev Server" cmd /k "npm run dev"
+    ) else (
+        echo [INFO] Assets compilados correctamente.
+    )
+) else (
+    echo [INFO] Assets ya compilados.
+)
+
+echo.
+echo [INFO] Iniciando servidores...
 echo.
 
 REM Iniciar PHP Artisan Serve en una nueva ventana
+echo [INFO] Iniciando servidor Laravel (puerto 8000)...
 start "Laravel Server" cmd /k "php artisan serve"
 
 REM Esperar un momento para que el servidor Laravel inicie
-timeout /t 2 /nobreak >nul
+timeout /t 3 /nobreak >nul
 
-REM Iniciar Vite en una nueva ventana
+REM Iniciar Vite en modo desarrollo (para hot-reload)
+echo [INFO] Iniciando Vite Dev Server (puerto 5173)...
 start "Vite Dev Server" cmd /k "npm run dev"
 
+REM Esperar un poco mas para que ambos servidores esten listos
+timeout /t 3 /nobreak >nul
+
 echo.
-echo Servidores iniciados:
+echo ====================================================
+echo    SERVIDORES INICIADOS EXITOSAMENTE
+echo ====================================================
+echo.
+echo Servidores disponibles:
 echo - Laravel: http://localhost:8000
-echo - Vite: http://localhost:5173
+echo - Vite Dev: http://localhost:5173
+echo.
+
+REM Abrir el navegador automaticamente
+echo [INFO] Abriendo navegador en http://localhost:8000...
+timeout /t 2 /nobreak >nul
+start http://localhost:8000/login
+
+echo.
+echo ====================================================
+echo    Sistema listo para usar
+echo ====================================================
 echo.
 echo Presiona cualquier tecla para cerrar esta ventana...
-pause >nul
+echo (Los servidores seguiran corriendo en sus ventanas)
+echo. #cerrar ventana automaticamente
 
+exit /b 0   #cerrar ventana automaticamente
+pause >nul

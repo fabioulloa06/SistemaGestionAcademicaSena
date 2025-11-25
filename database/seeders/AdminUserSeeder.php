@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class AdminUserSeeder extends Seeder
@@ -14,23 +13,31 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Crear o actualizar usuario administrador
-        User::updateOrCreate(
-            ['email' => 'admin@admin.com'],
-            [
-                'numero_documento' => '123456789',
-                'tipo_documento' => 'CC',
+        // Crear usuario admin si no existe
+        $admin = User::where('email', 'admin')->first();
+        
+        if (!$admin) {
+            User::create([
+                'name' => 'Administrador Sistema',
+                'email' => 'admin',
+                'password_hash' => Hash::make('admin123'), // Contraseña por defecto
+                'role' => 'admin',
+                'rol' => 'admin', // Compatibilidad
                 'nombres' => 'Administrador',
                 'apellidos' => 'Sistema',
-                'email' => 'admin@admin.com',
-                'password_hash' => Hash::make('fabio123'),
-                'rol' => 'coordinador',
+                'numero_documento' => '000000000',
+                'tipo_documento' => 'CC',
                 'estado' => 'activo',
-            ]
-        );
-        
-        $this->command->info('Usuario administrador creado exitosamente!');
-        $this->command->info('Email: admin@admin.com');
-        $this->command->info('Password: fabio123');
+            ]);
+            $this->command->info('Usuario Admin creado: User: admin, Pass: admin123');
+        } else {
+            // Asegurar que tenga el rol correcto
+            $admin->update([
+                'role' => 'admin',
+                'rol' => 'admin',
+                'password_hash' => Hash::make('admin123'), // Resetear contraseña para asegurar acceso
+            ]);
+            $this->command->info('Usuario Admin actualizado.');
+        }
     }
 }

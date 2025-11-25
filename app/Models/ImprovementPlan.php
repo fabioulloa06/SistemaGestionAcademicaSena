@@ -13,7 +13,7 @@ class ImprovementPlan extends Model
         'description',
         'start_date',
         'end_date',
-        'status',
+        'status', // La tabla usa 'status', no 'estado'
         'instructor_id',
         'observations',
     ];

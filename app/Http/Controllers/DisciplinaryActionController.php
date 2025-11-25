@@ -17,19 +17,23 @@ class DisciplinaryActionController extends Controller
     public function globalIndex()
     {
         $user = auth()->user();
-        $query = DisciplinaryAction::with('student.group.program');
         
-        // Instructores solo ven llamados de sus estudiantes
-        if ($user->isInstructor()) {
-            $assignments = \App\Models\CompetenciaGroupInstructor::where('instructor_id', $user->id)->get();
-            $groupIds = $assignments->pluck('group_id')->unique();
-            
+        // Verificar permisos
+        if (!$user->canCreateDisciplinaryActions()) {
+            abort(403, 'No tienes permiso para ver llamados de atención.');
+        }
+        
+        $groupIds = $user->getAccessibleGroupIds();
+        $query = DisciplinaryAction::with(['student.group.program', 'disciplinaryFault', 'academicFault']);
+        
+        // Filtrar por grupos accesibles
+        if ($user->isInstructor() || $user->isStudent()) {
             $query->whereHas('student', function($q) use ($groupIds) {
                 $q->whereIn('group_id', $groupIds);
             });
         }
         
-        $actions = $query->orderBy('date', 'desc')->paginate(10);
+        $actions = $query->orderBy('date', 'desc')->orderBy('id', 'desc')->paginate(15);
         return view('disciplinary_actions.global_index', compact('actions'));
     }
 
@@ -37,15 +41,14 @@ class DisciplinaryActionController extends Controller
     {
         $user = auth()->user();
         
-        // Verificar que el instructor tenga acceso a este estudiante
-        if ($user->isInstructor()) {
-            $hasAccess = \App\Models\CompetenciaGroupInstructor::where('instructor_id', $user->id)
-                ->where('group_id', $student->group_id)
-                ->exists();
-                
-            if (!$hasAccess) {
-                abort(403, 'No tienes permiso para crear llamados de atención para este estudiante.');
-            }
+        // Verificar permiso para crear llamados de atención
+        if (!$user->canCreateDisciplinaryActions()) {
+            abort(403, 'No tienes permiso para crear llamados de atención.');
+        }
+        
+        // Verificar que tenga acceso a este estudiante
+        if (!$user->canCreateDisciplinaryActionForStudent($student->id)) {
+            abort(403, 'No tienes permiso para crear llamados de atención para este estudiante.');
         }
         
         $faults = \App\Models\DisciplinaryFault::all();
@@ -66,6 +69,18 @@ class DisciplinaryActionController extends Controller
 
     public function store(Request $request, Student $student)
     {
+        $user = auth()->user();
+        
+        // Verificar permiso para crear llamados de atención
+        if (!$user->canCreateDisciplinaryActions()) {
+            abort(403, 'No tienes permiso para crear llamados de atención.');
+        }
+        
+        // Verificar que tenga acceso a este estudiante
+        if (!$user->canCreateDisciplinaryActionForStudent($student->id)) {
+            abort(403, 'No tienes permiso para crear llamados de atención para este estudiante.');
+        }
+        
         $validated = $request->validate([
             'tipo_falta' => 'required|in:Académica,Disciplinaria',
             'tipo_llamado' => 'required|in:verbal,written',
