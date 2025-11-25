@@ -1,0 +1,118 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        WWWGROUP: ${WWWGROUP:-1000}
+        WWWUSER: ${WWWUSER:-1000}
+    image: control-asistencias-php
+    container_name: control-asistencias-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      mysql:
+        condition: service_started
+    networks:
+      - app
+
+  queue:
+    image: control-asistencias-php
+    container_name: control-asistencias-queue
+    restart: unless-stopped
+    env_file:
+      - .env
+    working_dir: /var/www/html
+    command: php artisan queue:listen --tries=1
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      app:
+        condition: service_started
+    networks:
+      - app
+
+  scheduler:
+    image: control-asistencias-php
+    container_name: control-asistencias-scheduler
+    restart: unless-stopped
+    env_file:
+      - .env
+    working_dir: /var/www/html
+    command: php artisan schedule:work
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      app:
+        condition: service_started
+    networks:
+      - app
+
+  web:
+    image: nginx:1.27-alpine
+    container_name: control-asistencias-web
+    restart: unless-stopped
+    ports:
+      - '${APP_PORT:-8080}:80'
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      app:
+        condition: service_started
+    networks:
+      - app
+
+  vite:
+    image: node:20-alpine
+    container_name: control-asistencias-vite
+    restart: unless-stopped
+    working_dir: /var/www/html
+    environment:
+      VITE_PORT: ${VITE_PORT:-5173}
+    ports:
+      - '${VITE_PORT:-5173}:5173'
+    command: sh ./docker/node/entrypoint.sh
+    volumes:
+      - ./:/var/www/html
+      - node-modules:/var/www/html/node_modules
+    depends_on:
+      app:
+        condition: service_started
+    networks:
+      - app
+
+  mysql:
+    image: mariadb:11.4
+    container_name: control-asistencias-mysql
+    restart: unless-stopped
+    ports:
+      - '${DB_FORWARD_PORT:-3307}:3306'
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-sena_db}
+      MYSQL_USER: ${DB_USERNAME:-sena}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-secret}
+      MARIADB_AUTO_UPGRADE: 1
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD-SHELL', 'mariadb-admin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  node-modules:
+

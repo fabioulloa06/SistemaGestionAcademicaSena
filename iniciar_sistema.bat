@@ -14,7 +14,7 @@ start "Vite Assets" cmd /k "npm run dev"
 :: 3. Esperar unos segundos y abrir el navegador
 echo [INFO] Abriendo el navegador...
 timeout /t 5 >nul
-start http://127.0.0.1:8000
+start http://127.0.0.1:8000/login
 
 echo ===================================================
 echo    SISTEMA INICIADO EXITOSAMENTE

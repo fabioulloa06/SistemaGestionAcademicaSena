@@ -12,8 +12,9 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $table = 'usuarios';
-    protected $primaryKey = 'id_usuario';
+    // Usar la tabla 'users' por defecto de Laravel
+    // protected $table = 'usuarios';
+    // protected $primaryKey = 'id_usuario';
 
     /**
      * The attributes that are mass assignable.
@@ -21,15 +22,13 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'numero_documento',
-        'tipo_documento',
-        'nombres',
-        'apellidos',
+        'name',
         'email',
-        'password_hash',
-        'telefono',
-        'rol',
-        'estado',
+        'password',
+        'role',
+        'email_verified_at',
+        'current_team_id',
+        'profile_photo_path',
     ];
 
     /**
@@ -38,7 +37,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
-        'password_hash',
+        'password',
         'remember_token',
     ];
 
@@ -51,41 +50,42 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password_hash' => 'hashed',
+            'password' => 'hashed',
         ];
     }
 
-    /**
-     * Get the password attribute for authentication.
-     */
-    public function getAuthPassword()
-    {
-        return $this->password_hash;
-    }
+    // Métodos comentados - usando estructura estándar de Laravel
+    // /**
+    //  * Get the password attribute for authentication.
+    //  */
+    // public function getAuthPassword()
+    // {
+    //     return $this->password_hash;
+    // }
 
-    /**
-     * Get the name attribute (compatibility with Laravel default)
-     */
-    public function getNameAttribute()
-    {
-        return "{$this->nombres} {$this->apellidos}";
-    }
+    // /**
+    //  * Get the name attribute (compatibility with Laravel default)
+    //  */
+    // public function getNameAttribute()
+    // {
+    //     return "{$this->nombres} {$this->apellidos}";
+    // }
 
-    /**
-     * Get the password attribute (compatibility with Laravel default)
-     */
-    public function getPasswordAttribute()
-    {
-        return $this->password_hash;
-    }
+    // /**
+    //  * Get the password attribute (compatibility with Laravel default)
+    //  */
+    // public function getPasswordAttribute()
+    // {
+    //     return $this->password_hash;
+    // }
 
-    /**
-     * Set the password attribute (compatibility with Laravel default)
-     */
-    public function setPasswordAttribute($value)
-    {
-        $this->attributes['password_hash'] = $value;
-    }
+    // /**
+    //  * Set the password attribute (compatibility with Laravel default)
+    //  */
+    // public function setPasswordAttribute($value)
+    // {
+    //     $this->attributes['password_hash'] = $value;
+    // }
 
     // Relaciones
     public function fichasComoCoordinador()

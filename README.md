@@ -66,6 +66,54 @@ Sistema web para la gestión académica del Servicio Nacional de Aprendizaje (SE
 
 **📖 Para más detalles, consulta la [Guía de Instalación Completa](GUIA_INSTALACION.md)**
 
+## 🐳 Entorno Docker (opcional)
+
+> Ideal si quieres aislar el proyecto de XAMPP o si Docker bloquea tus puertos locales.
+
+1. **Prepara el entorno**
+   - Duplica `.env.example` a `.env`
+   - Ajusta los valores para Docker:
+     ```
+     APP_URL=http://localhost:8080
+     DB_HOST=mysql
+     DB_PORT=3306
+     DB_USERNAME=sena
+     DB_PASSWORD=secret
+     ```
+2. **Levanta los servicios**
+   ```bash
+   docker compose up -d --build web vite queue scheduler
+   ```
+   Esto inicia PHP-FPM, Nginx (puerto 8080), MariaDB (puerto 3307 en tu host) y Vite (5173).
+
+3. **Instala dependencias dentro del contenedor**
+   ```bash
+   docker compose exec app composer install
+   docker compose exec app php artisan key:generate
+   docker compose exec app php artisan migrate --seed
+   ```
+
+4. **Compilación de assets**
+   - En modo desarrollo ya corre `npm run dev` dentro del servicio `vite`
+   - Para un build puntual:
+     ```bash
+     docker compose exec app npm run build
+     ```
+
+5. **Accede a la aplicación**
+   - Backend: `http://localhost:8080`
+   - Vite HMR: `http://localhost:5173`
+
+6. **Apagar el entorno**
+   ```bash
+   docker compose down
+   ```
+
+Variables útiles:
+- `APP_PORT` (default 8080) para cambiar el puerto HTTP
+- `DB_FORWARD_PORT` (default 3307) si necesitas exponer MariaDB en otro puerto
+- `VITE_PORT` (default 5173) para el servidor de Vite
+
 ## 🛠️ Tecnologías Utilizadas
 
 - **Backend:** Laravel 12

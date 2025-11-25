@@ -14,20 +14,21 @@ class InstructorLiderSeeder extends Seeder
      */
     public function run(): void
     {
-        // Verificar si ya existe un instructor líder
-        if (!User::where('rol', 'instructor_lider')->exists()) {
+        // Verificar si ya existe un instructor
+        if (!User::where('role', 'instructor')->exists()) {
             User::create([
                 'name' => 'Instructor Líder',
                 'email' => 'instructor@sena.edu.co',
                 'password' => Hash::make('password123'),
-                'rol' => 'instructor_lider',
+                'role' => 'instructor',
+                'email_verified_at' => now(),
             ]);
             
-            $this->command->info('Instructor líder creado exitosamente!');
+            $this->command->info('Instructor creado exitosamente!');
             $this->command->info('Email: instructor@sena.edu.co');
             $this->command->info('Password: password123');
         } else {
-            $this->command->info('Ya existe un instructor líder en el sistema.');
+            $this->command->info('Ya existe un instructor en el sistema.');
         }
     }
 }
