@@ -1,188 +1,167 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
-            <!-- Welcome Section -->
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg mb-6 p-6">
-                <h1 class="text-2xl font-bold text-gray-800">¡Bienvenido al Sistema de Control Académico SENA!</h1>
-                <p class="mt-2 text-gray-600">Aquí podrá gestionar la asistencia, calificaciones y procesos disciplinarios de los aprendices.</p>
+@section('title', 'Dashboard')
+@section('page-title', 'Dashboard')
+
+@section('content')
+<!-- Header con saludo -->
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        Bienvenido, {{ Auth::user()->name }}! 👋
+    </h1>
+    <p class="text-gray-600">
+        Sistema de Gestión Académica SENA - Panel de control
+    </p>
+</div>
+
+<!-- Cards de Estadísticas -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <!-- Card 1 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total Aprendices</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2">0</p>
+                <p class="text-xs text-gray-500 mt-1">Activos en el sistema</p>
             </div>
-
-            <!-- Alerts Section -->
-            @if($atRiskStudents->count() > 0 || $consecutiveAbsencesStudents->count() > 0)
-            <div class="mb-6">
-                <h2 class="text-xl font-bold text-red-600 mb-4"><i class="bi bi-exclamation-octagon-fill"></i> Alertas Tempranas</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    <!-- 3+ Total Absences -->
-                    @if($atRiskStudents->count() > 0)
-                    <div class="bg-red-50 border-l-4 border-red-500 p-4 shadow">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <i class="bi bi-x-circle-fill text-red-500 text-2xl"></i>
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-lg font-medium text-red-800">Estudiantes con 3+ Fallas Totales</h3>
-                                <div class="mt-2 text-sm text-red-700">
-                                    <ul class="list-disc pl-5 space-y-1">
-                                        @foreach($atRiskStudents as $student)
-                                            <li>
-                                                <strong>{{ $student->nombre }}</strong> ({{ $student->attendance_lists_count }} fallas)
-                                                <a href="{{ route('students.disciplinary_actions.index', $student) }}" class="text-red-900 underline hover:text-red-600 ml-2">Ver Historial</a>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-
-                    <!-- Consecutive Absences -->
-                    @if($consecutiveAbsencesStudents->count() > 0)
-                    <div class="bg-orange-50 border-l-4 border-orange-500 p-4 shadow">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <i class="bi bi-exclamation-triangle-fill text-orange-500 text-2xl"></i>
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-lg font-medium text-orange-800">Riesgo de Deserción (3 Fallas Consecutivas)</h3>
-                                <div class="mt-2 text-sm text-orange-700">
-                                    <ul class="list-disc pl-5 space-y-1">
-                                        @foreach($consecutiveAbsencesStudents as $student)
-                                            <li>
-                                                <strong>{{ $student->nombre }}</strong>
-                                                <a href="{{ route('students.disciplinary_actions.index', $student) }}" class="text-orange-900 underline hover:text-orange-600 ml-2">Gestionar</a>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-
-                </div>
+            <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
+                <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
             </div>
-            @endif
-
-            <!-- Charts Section -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                
-                <!-- Attendance Chart -->
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">Asistencias (Mes Actual)</h3>
-                    <canvas id="attendanceChart"></canvas>
-                </div>
-
-                <!-- Faults Chart -->
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">Faltas por Tipo</h3>
-                    <canvas id="faultsChart"></canvas>
-                </div>
-
-                <!-- Plans Chart -->
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">Planes de Mejoramiento</h3>
-                    <canvas id="plansChart"></canvas>
-                </div>
-
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <a href="{{ route('attendance.index') }}" class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6 hover:bg-gray-50 transition duration-150 ease-in-out text-center group">
-                    <div class="text-4xl text-blue-500 mb-2 group-hover:scale-110 transform transition"><i class="bi bi-calendar-check"></i></div>
-                    <h3 class="font-bold text-gray-800">Tomar Asistencia</h3>
-                </a>
-                
-                <a href="{{ route('students.index') }}" class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6 hover:bg-gray-50 transition duration-150 ease-in-out text-center group">
-                    <div class="text-4xl text-green-500 mb-2 group-hover:scale-110 transform transition"><i class="bi bi-people"></i></div>
-                    <h3 class="font-bold text-gray-800">Gestionar Aprendices</h3>
-                </a>
-
-                <a href="{{ route('disciplinary_actions.global_index') }}" class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6 hover:bg-gray-50 transition duration-150 ease-in-out text-center group">
-                    <div class="text-4xl text-red-500 mb-2 group-hover:scale-110 transform transition"><i class="bi bi-exclamation-triangle"></i></div>
-                    <h3 class="font-bold text-gray-800">Faltas Disciplinarias</h3>
-                </a>
-
-                <a href="{{ route('improvement_plans.index') }}" class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6 hover:bg-gray-50 transition duration-150 ease-in-out text-center group">
-                    <div class="text-4xl text-orange-500 mb-2 group-hover:scale-110 transform transition"><i class="bi bi-clipboard-check"></i></div>
-                    <h3 class="font-bold text-gray-800">Planes de Mejoramiento</h3>
-                </a>
-            </div>
-
         </div>
     </div>
 
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Card 2 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Fichas Activas</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2">0</p>
+                <p class="text-xs text-gray-500 mt-1">En proceso de formación</p>
+            </div>
+            <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
+                <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            
-            // 1. Attendance Chart (Pie)
-            const ctxAttendance = document.getElementById('attendanceChart').getContext('2d');
-            new Chart(ctxAttendance, {
-                type: 'pie',
-                data: {
-                    labels: ['Asistió', 'Falla', 'Excusa', 'Retardo'],
-                    datasets: [{
-                        data: [
-                            {{ $attendanceData['Asistió'] }}, 
-                            {{ $attendanceData['Falla'] }}, 
-                            {{ $attendanceData['Excusa'] }}, 
-                            {{ $attendanceData['Retardo'] }}
-                        ],
-                        backgroundColor: ['#4ade80', '#ef4444', '#facc15', '#f97316'],
-                    }]
-                }
-            });
+    <!-- Card 3 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Pendientes</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2">0</p>
+                <p class="text-xs text-gray-500 mt-1">Actividades por revisar</p>
+            </div>
+            <div class="w-14 h-14 bg-yellow-100 rounded-xl flex items-center justify-center">
+                <svg class="w-7 h-7 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
 
-            // 2. Faults Chart (Bar)
-            const ctxFaults = document.getElementById('faultsChart').getContext('2d');
-            new Chart(ctxFaults, {
-                type: 'bar',
-                data: {
-                    labels: ['Académica', 'Disciplinaria'],
-                    datasets: [{
-                        label: 'Cantidad',
-                        data: [
-                            {{ $faultData['Académica'] }}, 
-                            {{ $faultData['Disciplinaria'] }}
-                        ],
-                        backgroundColor: ['#3b82f6', '#ef4444'],
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
-                    }
-                }
-            });
+    <!-- Card 4 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Alertas</p>
+                <p class="text-3xl font-bold text-gray-900 mt-2">0</p>
+                <p class="text-xs text-gray-500 mt-1">Requieren atención</p>
+            </div>
+            <div class="w-14 h-14 bg-red-100 rounded-xl flex items-center justify-center">
+                <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
 
-            // 3. Plans Chart (Doughnut)
-            const ctxPlans = document.getElementById('plansChart').getContext('2d');
-            new Chart(ctxPlans, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Abiertos', 'Cerrados'],
-                    datasets: [{
-                        data: [
-                            {{ $planData['Abiertos'] }}, 
-                            {{ $planData['Cerrados'] }}
-                        ],
-                        backgroundColor: ['#facc15', '#22c55e'],
-                    }]
-                }
-            });
+<!-- Sección de Acciones Rápidas -->
+@if(Auth::user()->rol === 'instructor_lider' || Auth::user()->rol === 'coordinador')
+<div class="rounded-xl shadow-lg p-6 mb-6 text-white" style="background: linear-gradient(135deg, #238276 0%, #1a6b60 100%);">
+    <div class="flex items-center justify-between">
+        <div>
+            <h3 class="text-xl font-bold mb-2">Acciones Rápidas</h3>
+            <p class="text-white/90 text-sm">Gestiona aprendices y fichas de forma rápida</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{{ route('aprendices.create') }}" class="px-6 py-3 bg-white rounded-lg font-semibold transition-colors shadow-md" style="color: #238276;" onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='white'">
+                + Registrar Aprendiz
+            </a>
+            <a href="{{ route('aprendices.index') }}" class="px-6 py-3 bg-white/10 backdrop-blur-sm text-white rounded-lg font-semibold hover:bg-white/20 transition-colors border border-white/20">
+                Ver Aprendices
+            </a>
+        </div>
+    </div>
+</div>
+@endif
 
-        });
-    </script>
-</x-app-layout>
+<!-- Información del Usuario -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Card de Perfil -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+            Información del Perfil
+        </h3>
+        <div class="space-y-4">
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl font-bold" style="background: linear-gradient(135deg, #fc7323 0%, #e8651f 100%);">
+                    {{ substr(Auth::user()->name, 0, 1) }}
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-900">{{ Auth::user()->name }}</p>
+                    <p class="text-sm text-gray-600">{{ Auth::user()->email }}</p>
+                    <span class="inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium text-white" style="background-color: #238276;">
+                        {{ ucfirst(str_replace('_', ' ', Auth::user()->rol)) }}
+                    </span>
+                </div>
+            </div>
+            <div class="pt-4 border-t border-gray-200">
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <p class="text-gray-500">Estado</p>
+                        <p class="font-medium text-gray-900 mt-1">Activo</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Último acceso</p>
+                        <p class="font-medium text-gray-900 mt-1">Hoy</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card de Actividad Reciente -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Actividad Reciente
+        </h3>
+        <div class="space-y-4">
+            <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                <div class="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">Sesión iniciada</p>
+                    <p class="text-xs text-gray-500">Hace unos momentos</p>
+                </div>
+            </div>
+            <div class="text-center py-8 text-gray-400">
+                <svg class="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <p class="text-sm">No hay actividad reciente</p>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

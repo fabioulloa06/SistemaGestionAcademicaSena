@@ -1,148 +1,186 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>@yield('title', 'Sistema de Gestión Académica SENA')</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Styles / Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    @auth
+        <!-- Layout con Sidebar para usuarios autenticados -->
+        <div class="flex h-screen bg-gray-50">
+            <!-- Sidebar -->
+            <aside class="hidden md:flex md:flex-shrink-0">
+                <div class="flex flex-col w-64 shadow-lg" style="background: linear-gradient(180deg, #238276 0%, #1a6b60 100%);">
+                    <!-- Logo SENA -->
+                    <div class="flex items-center justify-center h-16 px-4 bg-white/10 backdrop-blur-sm">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                                <span class="font-bold text-xl" style="color: #238276;">S</span>
+                            </div>
+                            <div class="text-white">
+                                <h1 class="font-bold text-sm">SENA</h1>
+                                <p class="text-xs text-white/80">Gestión Académica</p>
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- Styles -->
-        @livewireStyles
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-        
-        <style>
-            :root {
-                --sena-orange: #fc7323;
-                --sena-green: #39a900;
-                --sena-blue: #00324d;
-                --sena-light-gray: #f4f4f4;
-            }
+                    <!-- Navegación -->
+                    <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+                        <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-white/10 transition-colors {{ request()->routeIs('dashboard') ? 'bg-white/20' : '' }}">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            <span class="font-medium">Dashboard</span>
+                        </a>
 
-            /* Bootstrap Overrides */
-            .btn-primary {
-                background-color: var(--sena-orange);
-                border-color: var(--sena-orange);
-            }
-            .btn-primary:hover {
-                background-color: #e05d0b;
-                border-color: #e05d0b;
-            }
+                        @if(Auth::user()->rol === 'instructor_lider' || Auth::user()->rol === 'coordinador')
+                        <a href="{{ route('aprendices.index') }}" class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-white/10 transition-colors {{ request()->routeIs('aprendices.*') ? 'bg-white/20' : '' }}">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            </svg>
+                            <span class="font-medium">Aprendices</span>
+                        </a>
+                        @endif
 
-            .btn-success {
-                background-color: var(--sena-green);
-                border-color: var(--sena-green);
-            }
-            .btn-success:hover {
-                background-color: #2d8500;
-                border-color: #2d8500;
-            }
+                        <a href="#" class="flex items-center px-4 py-3 text-white/80 rounded-lg hover:bg-white/10 transition-colors">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <span class="font-medium">Fichas</span>
+                        </a>
 
-            .text-primary { color: var(--sena-orange) !important; }
-            .text-success { color: var(--sena-green) !important; }
-            
-            .bg-primary { background-color: var(--sena-orange) !important; }
-            .bg-success { background-color: var(--sena-green) !important; }
-            .bg-dark { background-color: var(--sena-blue) !important; }
+                        <a href="#" class="flex items-center px-4 py-3 text-white/80 rounded-lg hover:bg-white/10 transition-colors">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                            </svg>
+                            <span class="font-medium">Asistencias</span>
+                        </a>
 
-            .table-dark {
-                --bs-table-bg: var(--sena-blue);
-                --bs-table-border-color: #004d7a;
-            }
+                        <a href="#" class="flex items-center px-4 py-3 text-white/80 rounded-lg hover:bg-white/10 transition-colors">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="font-medium">Calificaciones</span>
+                        </a>
 
-            /* Layout Tweaks */
-            body {
-                background-color: #f8f9fa;
-            }
-            
-            /* Sidebar Customization (Tailwind override via CSS) */
-            .sena-sidebar {
-                background-color: var(--sena-blue) !important;
-            }
-            .sena-sidebar-link:hover, .sena-sidebar-link.active {
-                background-color: rgba(252, 115, 35, 0.1) !important;
-                color: var(--sena-orange) !important;
-                border-left: 4px solid var(--sena-orange);
-            }
-        </style>
-    <body class="font-sans antialiased">
-        <x-banner />
+                        <a href="#" class="flex items-center px-4 py-3 text-white/80 rounded-lg hover:bg-white/10 transition-colors">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <span class="font-medium">Llamados de Atención</span>
+                        </a>
 
-        <!-- Sidebar Layout -->
-        <x-sidebar>
-            <x-slot name="header">
-                @if (isset($header))
-                    {{ $header }}
-                @endif
-            </x-slot>
-            
-            {{ $slot }}
-        </x-sidebar>
+                        <a href="#" class="flex items-center px-4 py-3 text-white/80 rounded-lg hover:bg-white/10 transition-colors">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <span class="font-medium">Notificaciones</span>
+                        </a>
+                    </nav>
 
-        @stack('modals')
+                    <!-- Usuario -->
+                    <div class="p-4 border-t border-white/20">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                                <span class="font-semibold text-sm" style="color: #238276;">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-white font-medium text-sm truncate">{{ Auth::user()->name }}</p>
+                                <p class="text-white/70 text-xs truncate">{{ ucfirst(str_replace('_', ' ', Auth::user()->rol)) }}</p>
+                            </div>
+                        </div>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="w-full flex items-center justify-center px-4 py-2 text-white bg-white/10 rounded-lg hover:bg-white/20 transition-colors text-sm font-medium">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                </svg>
+                                Cerrar Sesión
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </aside>
 
-        @livewireScripts
+            <!-- Contenido Principal -->
+            <div class="flex flex-col flex-1 overflow-hidden">
+                <!-- Top Bar -->
+                <header class="bg-white shadow-sm border-b border-gray-200">
+                    <div class="flex items-center justify-between h-16 px-6">
+                        <div class="flex items-center">
+                            <button class="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                </svg>
+                            </button>
+                            <h2 class="ml-4 md:ml-0 text-xl font-semibold text-gray-800">@yield('page-title', 'Dashboard')</h2>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-full relative">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                                    </svg>
+                                    <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </header>
 
-        <script>
-            // SweetAlert2 for Flash Messages
-            @if(session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Éxito!',
-                    text: "{{ session('success') }}",
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-            @endif
-
-            @if(session('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: "{{ session('error') }}",
-                });
-            @endif
-
-            @if($errors->any())
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Atención',
-                    html: '<ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>',
-                });
-            @endif
-
-            // SweetAlert2 for Delete Confirmations
-            document.addEventListener('DOMContentLoaded', function() {
-                const deleteForms = document.querySelectorAll('form[onsubmit^="return confirm"]');
-                deleteForms.forEach(form => {
-                    form.onsubmit = function(e) {
-                        e.preventDefault();
-                        Swal.fire({
-                            title: '¿Estás seguro?',
-                            text: "¡No podrás revertir esto!",
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#d33',
-                            cancelButtonColor: '#3085d6',
-                            confirmButtonText: 'Sí, eliminar',
-                            cancelButtonText: 'Cancelar'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                form.submit();
-                            }
-                        });
-                    };
-                });
-            });
-        </script>
-    </body>
+                <!-- Contenido -->
+                <main class="flex-1 overflow-y-auto bg-gray-50">
+                    <div class="p-6">
+                        @yield('content')
+                    </div>
+                </main>
+            </div>
+        </div>
+    @else
+        <!-- Layout simple para páginas públicas -->
+        <div class="min-h-screen bg-gray-50">
+            <nav class="bg-white shadow-sm">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16">
+                        <div class="flex items-center">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color: #238276;">
+                                    <span class="text-white font-bold text-xl">S</span>
+                                </div>
+                                <div>
+                                    <h1 class="text-xl font-bold text-gray-900">SENA</h1>
+                                    <p class="text-xs text-gray-500">Gestión Académica</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <a href="{{ route('login') }}" class="px-4 py-2 text-white rounded-lg transition-colors font-medium" style="background-color: #fc7323;" onmouseover="this.style.backgroundColor='#e8651f'" onmouseout="this.style.backgroundColor='#fc7323'">
+                                Iniciar Sesión
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <main>
+                @yield('content')
+            </main>
+        </div>
+    @endauth
+</body>
 </html>

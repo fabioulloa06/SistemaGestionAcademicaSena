@@ -6,51 +6,40 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
-use Laravel\Jetstream\HasProfilePhoto;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens;
-
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory;
-    use HasProfilePhoto;
-    use Notifiable;
-    use TwoFactorAuthenticatable;
+    use HasFactory, Notifiable;
+
+    protected $table = 'usuarios';
+    protected $primaryKey = 'id_usuario';
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'numero_documento',
+        'tipo_documento',
+        'nombres',
+        'apellidos',
         'email',
-        'password',
-        'role',
+        'password_hash',
+        'telefono',
+        'rol',
+        'estado',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $hidden = [
-        'password',
+        'password_hash',
         'remember_token',
-        'two_factor_recovery_codes',
-        'two_factor_secret',
-    ];
-
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array<int, string>
-     */
-    protected $appends = [
-        'profile_photo_url',
     ];
 
     /**
@@ -62,53 +51,91 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password_hash' => 'hashed',
         ];
     }
 
-    public function student()
+    /**
+     * Get the password attribute for authentication.
+     */
+    public function getAuthPassword()
     {
-        return $this->hasOne(Student::class);
+        return $this->password_hash;
     }
 
-    public function isStudent(): bool
+    /**
+     * Get the name attribute (compatibility with Laravel default)
+     */
+    public function getNameAttribute()
     {
-        return $this->student()->exists();
+        return "{$this->nombres} {$this->apellidos}";
     }
 
-    // Role helper methods
-    public function isAdmin(): bool
+    /**
+     * Get the password attribute (compatibility with Laravel default)
+     */
+    public function getPasswordAttribute()
     {
-        return $this->role === 'admin';
+        return $this->password_hash;
     }
 
-    public function isCoordinator(): bool
+    /**
+     * Set the password attribute (compatibility with Laravel default)
+     */
+    public function setPasswordAttribute($value)
     {
-        return $this->role === 'coordinator';
+        $this->attributes['password_hash'] = $value;
+    }
+
+    // Relaciones
+    public function fichasComoCoordinador()
+    {
+        return $this->hasMany(Ficha::class, 'id_coordinador', 'id_usuario');
+    }
+
+    public function fichasComoInstructorLider()
+    {
+        return $this->hasMany(Ficha::class, 'id_instructor_lider', 'id_usuario');
+    }
+
+    public function matriculas()
+    {
+        return $this->hasMany(Matricula::class, 'id_aprendiz', 'id_usuario');
+    }
+
+    public function planeaciones()
+    {
+        return $this->hasMany(PlaneacionRa::class, 'id_instructor', 'id_usuario');
+    }
+
+    // Helpers
+    public function getNombreCompletoAttribute(): string
+    {
+        return "{$this->nombres} {$this->apellidos}";
+    }
+
+    public function isCoordinador(): bool
+    {
+        return $this->rol === 'coordinador';
+    }
+
+    public function isInstructorLider(): bool
+    {
+        return $this->rol === 'instructor_lider';
     }
 
     public function isInstructor(): bool
     {
-        return $this->role === 'instructor';
+        return $this->rol === 'instructor';
     }
 
-    public function isStudentRole(): bool
+    public function isAprendiz(): bool
     {
-        return $this->role === 'student';
+        return $this->rol === 'aprendiz';
     }
 
-    public function isAdminOrCoordinator(): bool
+    public function isActivo(): bool
     {
-        return in_array($this->role, ['admin', 'coordinator']);
-    }
-
-    public function canManageData(): bool
-    {
-        return $this->isAdminOrCoordinator();
-    }
-
-    public function canPerformInstructorActions(): bool
-    {
-        return in_array($this->role, ['admin', 'instructor']);
+        return $this->estado === 'activo';
     }
 }
