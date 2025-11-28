@@ -1,0 +1,51 @@
+# Laravel Docker Ignore
+# Archivos que NO se copiarán al contenedor Docker
+
+# Dependencias
+/node_modules
+/vendor
+
+# Archivos de desarrollo
+/.git
+/.github
+/.idea
+/.vscode
+*.swp
+*.swo
+*~
+
+# Archivos de entorno
+.env
+.env.backup
+.env.production
+
+# Logs
+/storage/*.log
+/storage/logs/*
+*.log
+
+# Cache
+/bootstrap/cache/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+
+# Archivos temporales
+/tests
+.phpunit.result.cache
+phpunit.xml
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos de build
+/public/build
+/public/hot
+/public/storage
+
+# Documentación (opcional, puedes comentar si quieres incluirla)
+# *.md
+# /docs
+
