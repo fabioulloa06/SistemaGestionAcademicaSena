@@ -9,8 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('disciplinary_actions', function (Blueprint $table) {
-            $table->foreignId('disciplinary_fault_id')->nullable()->constrained('disciplinary_faults');
-            $table->text('orientations_or_recommendations')->nullable(); // Para 2do llamado
+            if (!Schema::hasColumn('disciplinary_actions', 'disciplinary_fault_id')) {
+                $table->foreignId('disciplinary_fault_id')->nullable()->constrained('disciplinary_faults');
+            }
+            if (!Schema::hasColumn('disciplinary_actions', 'orientations_or_recommendations')) {
+                $table->text('orientations_or_recommendations')->nullable(); // Para 2do llamado
+            }
         });
     }
 

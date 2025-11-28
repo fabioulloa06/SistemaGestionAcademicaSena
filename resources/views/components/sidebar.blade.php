@@ -54,7 +54,7 @@
             </a>
 
             <a href="{{ route('competencias.index') }}" 
-               class="flex items-center px-4 py-3 text-gray-300 transition-colors duration-200 transform rounded-md sena-sidebar-link {{ request()->routeIs('competencias.*') ? 'active' : '' }}">
+               class="flex items-center px-4 py-3 text-gray-300 transition-colors duration-200 transform rounded-md sena-sidebar-link {{ request()->routeIs('programs.*') || request()->routeIs('competencias.*') ? 'active' : '' }}">
                 <i class="bi bi-award text-xl"></i>
                 <span class="mx-4 font-medium">Competencias</span>
             </a>
@@ -84,17 +84,6 @@
             </a>
             @endif
 
-            @if($user->canGrade())
-            <!-- Calificaciones (Solo Admin e Instructores, NO Coordinador) -->
-            <hr class="my-4 border-gray-600">
-            <p class="px-4 text-xs text-gray-400 uppercase">Académico</p>
-            
-            <a href="{{ route('grading.index') }}" 
-               class="flex items-center px-4 py-3 text-gray-300 transition-colors duration-200 transform rounded-md sena-sidebar-link {{ request()->routeIs('grading.*') ? 'active' : '' }}">
-                <i class="bi bi-clipboard-check text-xl"></i>
-                <span class="mx-4 font-medium">Calificaciones</span>
-            </a>
-            @endif
 
             @if($user->canCreateDisciplinaryActions())
             <!-- Llamados de Atención (Admin, Coordinador e Instructores) -->

@@ -7,9 +7,11 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="bi bi-person-badge-fill"></i> Lista de Instructores</h1>
+        @if(!auth()->user()->isCoordinator())
         <a href="{{ route('instructors.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Crear Instructor
         </a>
+        @endif
     </div>
 
     <div class="table-responsive">
@@ -35,6 +37,7 @@
                             <a href="{{ route('instructors.show', $instructor) }}" class="btn btn-info btn-sm" title="Ver">
                                 <i class="bi bi-eye"></i>
                             </a>
+                            @if(!auth()->user()->isCoordinator())
                             <a href="{{ route('instructors.edit', $instructor) }}" class="btn btn-warning btn-sm" title="Editar">
                                 <i class="bi bi-pencil"></i>
                             </a>
@@ -45,6 +48,7 @@
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </form>
+                            @endif
                         </div>
                     </td>
                 </tr>

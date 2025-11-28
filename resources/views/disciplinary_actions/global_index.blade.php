@@ -50,13 +50,20 @@
                         </td>
                         <td>{{ Str::limit($action->description, 50) }}</td>
                         <td>
-                            <form action="{{ route('disciplinary_actions.destroy', $action) }}" method="POST" style="display:inline-block" onsubmit="return confirm('¿Estás seguro de eliminar este registro?')">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-danger btn-sm" title="Eliminar">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
+                            <div class="btn-group" role="group">
+                                <a href="{{ route('disciplinary_actions.print', $action) }}" class="btn btn-secondary btn-sm" title="Imprimir / PDF" target="_blank">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+                                @if(!auth()->user()->isCoordinator())
+                                <form action="{{ route('disciplinary_actions.destroy', $action) }}" method="POST" style="display:inline-block" onsubmit="return confirm('¿Estás seguro de eliminar este registro?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-danger btn-sm" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @empty

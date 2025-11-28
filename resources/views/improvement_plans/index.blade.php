@@ -48,9 +48,11 @@
                                 <a href="{{ route('improvement_plans.show', $plan) }}" class="btn btn-info btn-sm" title="Ver">
                                     <i class="bi bi-eye"></i>
                                 </a>
+                                @if(!auth()->user()->isCoordinator())
                                 <a href="{{ route('improvement_plans.edit', $plan) }}" class="btn btn-warning btn-sm" title="Editar">
                                     <i class="bi bi-pencil"></i>
                                 </a>
+                                @endif
                                 <a href="{{ route('improvement_plans.print', $plan) }}" class="btn btn-secondary btn-sm" title="Imprimir / PDF" target="_blank">
                                     <i class="bi bi-printer"></i>
                                 </a>

@@ -11,7 +11,7 @@
 
     <div class="card mb-4">
         <div class="card-body">
-            <form method="GET" action="{{ route('attendance.bulk.create') }}" class="row g-3">
+            <form method="GET" action="{{ route('attendance-lists.create') }}" class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">Seleccionar Grupo</label>
                     <select name="group_id" class="form-select" onchange="this.form.submit()">
@@ -28,7 +28,7 @@
     </div>
 
     @if(isset($students) && $students->count() > 0)
-        <form action="{{ route('attendance.bulk.store') }}" method="POST">
+        <form action="{{ route('attendance-lists.store') }}" method="POST">
             @csrf
             <input type="hidden" name="group_id" value="{{ request('group_id') }}">
             

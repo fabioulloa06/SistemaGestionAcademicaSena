@@ -8,9 +8,11 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="bi bi-list-check"></i> Resultados de Aprendizaje</h1>
         <div>
+            @if(!auth()->user()->isCoordinator())
             <a href="{{ route('competencias.learning_outcomes.create', $competencia) }}" class="btn btn-primary">
                 <i class="bi bi-plus-circle"></i> Nuevo RA
             </a>
+            @endif
             <a href="{{ route('programs.competencias.index', $competencia->program) }}" class="btn btn-secondary ms-2">
                 <i class="bi bi-arrow-left"></i> Volver a Competencias
             </a>
@@ -45,6 +47,7 @@
                         </td>
                         <td>
                             <div class="btn-group" role="group">
+                                @if(!auth()->user()->isCoordinator())
                                 <a href="{{ route('learning_outcomes.edit', $ra) }}" class="btn btn-warning btn-sm" title="Editar">
                                     <i class="bi bi-pencil"></i>
                                 </a>
@@ -55,6 +58,11 @@
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
+                                @else
+                                <a href="{{ route('learning_outcomes.show', $ra) }}" class="btn btn-info btn-sm" title="Ver">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                @endif
                             </div>
                         </td>
                     </tr>

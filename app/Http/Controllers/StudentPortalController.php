@@ -24,16 +24,30 @@ class StudentPortalController extends Controller
             'justificado' => $student->attendance_lists()->where('estado', 'justificado')->count(),
         ];
 
-        // Últimas asistencias
+        // Últimas asistencias - Optimizado
         $recentAttendances = $student->attendance_lists()
-            ->with('competencia')
+            ->with('competencia:id,nombre')
+            ->select('id', 'student_id', 'fecha', 'estado', 'competencia_id', 'observaciones')
             ->orderBy('fecha', 'desc')
-            ->take(5)
+            ->limit(5)
             ->get();
 
         // Procesos Disciplinarios Activos
         $activeDisciplinary = $student->disciplinary_actions()->count();
+        
+        // Llamados de atención recientes - Optimizado
+        $recentDisciplinaryActions = $student->disciplinary_actions()
+            ->select('id', 'student_id', 'date', 'tipo_falta', 'tipo_llamado', 'description')
+            ->orderBy('date', 'desc')
+            ->limit(5)
+            ->get();
 
-        return view('student.dashboard', compact('student', 'attendanceSummary', 'recentAttendances', 'activeDisciplinary'));
+        return view('student.dashboard', compact(
+            'student', 
+            'attendanceSummary', 
+            'recentAttendances', 
+            'activeDisciplinary',
+            'recentDisciplinaryActions'
+        ));
     }
 }

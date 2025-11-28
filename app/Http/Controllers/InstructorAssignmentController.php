@@ -18,6 +18,17 @@ class InstructorAssignmentController extends Controller
 
     public function edit(Group $group)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no editar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para editar asignaciones de instructores. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para editar asignaciones de instructores.');
+        }
+        
         $competencias = $group->program->competencias;
         $instructors = User::where('role', 'instructor')->get();
         
@@ -31,6 +42,17 @@ class InstructorAssignmentController extends Controller
 
     public function update(Request $request, Group $group)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no actualizar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para actualizar asignaciones de instructores. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para actualizar asignaciones de instructores.');
+        }
+        
         $validated = $request->validate([
             'assignments' => 'required|array',
             'assignments.*' => 'nullable|exists:users,id',

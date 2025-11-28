@@ -39,11 +39,6 @@
                     </x-nav-link>
                     @endif
                     
-                    @if($user->canGrade())
-                    <x-nav-link href="{{ route('grading.index') }}" :active="request()->routeIs('grading.*')">
-                        Calificaciones
-                    </x-nav-link>
-                    @endif
                 </div>
                 @endauth
             </div>
@@ -184,7 +179,7 @@
             <x-responsive-nav-link href="{{ route('instructors.index') }}" :active="request()->routeIs('instructors.*')">
                 Instructores
             </x-responsive-nav-link>
-            <x-responsive-nav-link href="{{ route('attendance.index') }}" :active="request()->routeIs('attendance.*')">
+            <x-responsive-nav-link href="{{ route('attendance-lists.index') }}" :active="request()->routeIs('attendance-lists.*')">
                 Asistencias
             </x-responsive-nav-link>
         </div>

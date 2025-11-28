@@ -18,6 +18,18 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
+        
+        // Solo admin puede acceder a este dashboard
+        if (!$user->isAdmin()) {
+            if ($user->isCoordinator()) {
+                return redirect()->route('coordinator.dashboard');
+            } elseif ($user->isInstructor()) {
+                return redirect()->route('instructor.dashboard');
+            } elseif ($user->isStudent()) {
+                return redirect()->route('student.dashboard');
+            }
+        }
+        
         $now = Carbon::now();
         $startOfMonth = $now->copy()->startOfMonth();
         
@@ -39,9 +51,8 @@ class DashboardController extends Controller
         }
         $totalStudents = $studentQuery->count();
         
-        // Estadísticas de Asistencias del mes actual (optimizado con eager loading)
-        $attendanceQuery = Attendance_list::with(['student.group.program'])
-            ->whereBetween('fecha', [$startOfMonth, $now]);
+        // Estadísticas de Asistencias del mes actual (optimizado con agregación en BD)
+        $attendanceQuery = Attendance_list::whereBetween('fecha', [$startOfMonth, $now]);
             
         if ($user->isInstructor() || $user->isStudent()) {
             $attendanceQuery->whereHas('student', function($q) use ($groupIds) {
@@ -49,29 +60,41 @@ class DashboardController extends Controller
             });
         }
         
-        $attendances = $attendanceQuery->get();
-        $totalAsistencias = $attendances->where('estado', 'presente')->count();
-        $totalFallas = $attendances->where('estado', 'ausente')->count();
-        $totalExcusas = $attendances->where('estado', 'excusa')->count();
-        $totalRetardos = $attendances->where('estado', 'tardanza')->count();
+        // Optimizar: usar agregación en BD en lugar de cargar todos los registros
+        $attendanceStats = $attendanceQuery
+            ->selectRaw('estado, COUNT(*) as count')
+            ->groupBy('estado')
+            ->pluck('count', 'estado')
+            ->toArray();
+        
+        $totalAsistencias = $attendanceStats['presente'] ?? 0;
+        $totalFallas = $attendanceStats['ausente'] ?? 0;
+        $totalExcusas = $attendanceStats['excusa'] ?? 0;
+        $totalRetardos = $attendanceStats['tardanza'] ?? 0;
         
         // Si no hay grupos activos, establecer totales en 0
         $totalGroups = $groups->count();
         
-        // Estadísticas de Faltas Disciplinarias (optimizado)
-        $disciplinaryQuery = DisciplinaryAction::with('student.group.program');
+        // Estadísticas de Faltas Disciplinarias (optimizado con agregación en BD)
+        $disciplinaryQuery = DisciplinaryAction::query();
         if ($user->isInstructor() || $user->isStudent()) {
             $disciplinaryQuery->whereHas('student', function($q) use ($groupIds) {
                 $q->whereIn('group_id', $groupIds);
             });
         }
         
-        $disciplinaryActions = $disciplinaryQuery->get();
-        $faltasAcademicas = $disciplinaryActions->where('tipo_falta', 'Académica')->count();
-        $faltasDisciplinarias = $disciplinaryActions->where('tipo_falta', 'Disciplinaria')->count();
+        // Optimizar: usar agregación en BD
+        $disciplinaryStats = $disciplinaryQuery
+            ->selectRaw('tipo_falta, COUNT(*) as count')
+            ->groupBy('tipo_falta')
+            ->pluck('count', 'tipo_falta')
+            ->toArray();
         
-        // Estadísticas de Planes de Mejoramiento (optimizado)
-        $improvementPlansQuery = ImprovementPlan::with(['disciplinaryAction.student.group']);
+        $faltasAcademicas = $disciplinaryStats['Académica'] ?? 0;
+        $faltasDisciplinarias = $disciplinaryStats['Disciplinaria'] ?? 0;
+        
+        // Estadísticas de Planes de Mejoramiento (optimizado con agregación en BD)
+        $improvementPlansQuery = ImprovementPlan::query();
         if ($user->isInstructor()) {
             $improvementPlansQuery->where(function($q) use ($groupIds, $user) {
                 $q->whereHas('disciplinaryAction.student', function($q2) use ($groupIds) {
@@ -84,9 +107,16 @@ class DashboardController extends Controller
             });
         }
         
-        $improvementPlans = $improvementPlansQuery->get();
-        $planesAbiertos = $improvementPlans->whereIn('estado', ['Pendiente', 'En Progreso'])->count();
-        $planesCerrados = $improvementPlans->whereIn('estado', ['Cumplido', 'Incumplido'])->count();
+        // Optimizar: usar agregación en BD
+        $improvementStats = $improvementPlansQuery
+            ->selectRaw("
+                SUM(CASE WHEN status IN ('Pendiente', 'En Progreso') THEN 1 ELSE 0 END) as abiertos,
+                SUM(CASE WHEN status IN ('Cumplido', 'Incumplido') THEN 1 ELSE 0 END) as cerrados
+            ")
+            ->first();
+        
+        $planesAbiertos = $improvementStats->abiertos ?? 0;
+        $planesCerrados = $improvementStats->cerrados ?? 0;
         
         // Datos para gráficos
         $attendanceChartData = [

@@ -8,9 +8,11 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="bi bi-exclamation-triangle-fill"></i> Historial Disciplinario</h1>
         <div>
+            @if(!auth()->user()->isCoordinator())
             <a href="{{ route('students.disciplinary_actions.create', $student) }}" class="btn btn-danger">
                 <i class="bi bi-plus-circle"></i> Nuevo Llamado de Atención
             </a>
+            @endif
             <a href="{{ route('students.index') }}" class="btn btn-secondary ms-2">
                 <i class="bi bi-arrow-left"></i> Volver a Estudiantes
             </a>
@@ -60,6 +62,7 @@
                                 <a href="{{ route('disciplinary_actions.print', $action) }}" class="btn btn-secondary btn-sm" title="Imprimir / PDF" target="_blank">
                                     <i class="bi bi-printer"></i>
                                 </a>
+                                @if(!auth()->user()->isCoordinator())
                                 <form action="{{ route('disciplinary_actions.destroy', $action) }}" method="POST" style="display:inline-block" onsubmit="return confirm('¿Estás seguro de eliminar este registro?')">
                                     @csrf
                                     @method('DELETE')
@@ -67,6 +70,7 @@
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

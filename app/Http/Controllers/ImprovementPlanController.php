@@ -20,6 +20,13 @@ class ImprovementPlanController extends Controller
 
     public function create(Request $request)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no crear
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para crear planes de mejoramiento. Tu rol es de revisión y vigilancia.');
+        }
+        
         $disciplinaryActionId = $request->query('disciplinary_action');
         $disciplinaryAction = null;
         $student = null;
@@ -37,6 +44,13 @@ class ImprovementPlanController extends Controller
 
     public function store(Request $request)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no crear
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para crear planes de mejoramiento. Tu rol es de revisión y vigilancia.');
+        }
+        
         $validated = $request->validate([
             'disciplinary_action_id' => 'nullable|exists:disciplinary_actions,id',
             'student_id' => 'required|exists:students,id',
@@ -67,12 +81,26 @@ class ImprovementPlanController extends Controller
 
     public function edit(ImprovementPlan $improvementPlan)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no editar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para editar planes de mejoramiento. Tu rol es de revisión y vigilancia.');
+        }
+        
         $instructors = Instructor::where('activo', true)->get();
         return view('improvement_plans.edit', compact('improvementPlan', 'instructors'));
     }
 
     public function update(Request $request, ImprovementPlan $improvementPlan)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no actualizar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para actualizar planes de mejoramiento. Tu rol es de revisión y vigilancia.');
+        }
+        
         $validated = $request->validate([
             'description' => 'required|string',
             'start_date' => 'required|date',
@@ -90,6 +118,13 @@ class ImprovementPlanController extends Controller
 
     public function destroy(ImprovementPlan $improvementPlan)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no eliminar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para eliminar planes de mejoramiento. Tu rol es de revisión y vigilancia.');
+        }
+        
         $improvementPlan->delete();
 
         return redirect()->route('improvement_plans.index')

@@ -10,6 +10,26 @@ class DisciplinaryActionController extends Controller
 {
     public function index(Student $student)
     {
+        $user = auth()->user();
+        
+        // Verificar permisos
+        if (!$user->canViewDisciplinaryActions()) {
+            abort(403, 'No tienes permiso para ver llamados de atención.');
+        }
+        
+        // Verificar que tenga acceso a este estudiante (admin y coordinador pueden ver todos)
+        if ($user->isAdmin() || $user->isCoordinator()) {
+            // Pueden ver todos los estudiantes
+        } elseif ($user->isInstructor()) {
+            // Instructores solo pueden ver estudiantes de sus grupos
+            $groupIds = $user->getAccessibleGroupIds();
+            if (!in_array($student->group_id, $groupIds)) {
+                abort(403, 'No tienes permiso para ver llamados de atención de este estudiante.');
+            }
+        } else {
+            abort(403, 'No tienes permiso para ver llamados de atención.');
+        }
+        
         $actions = $student->disciplinary_actions()->orderBy('date', 'desc')->paginate(10);
         return view('disciplinary_actions.index', compact('student', 'actions'));
     }
@@ -18,8 +38,8 @@ class DisciplinaryActionController extends Controller
     {
         $user = auth()->user();
         
-        // Verificar permisos
-        if (!$user->canCreateDisciplinaryActions()) {
+        // Verificar permisos - Coordinador puede ver pero no crear
+        if (!$user->canViewDisciplinaryActions()) {
             abort(403, 'No tienes permiso para ver llamados de atención.');
         }
         
@@ -40,6 +60,11 @@ class DisciplinaryActionController extends Controller
     public function create(Student $student)
     {
         $user = auth()->user();
+        
+        // Coordinador solo puede ver, no crear
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para crear llamados de atención. Tu rol es de revisión y vigilancia.');
+        }
         
         // Verificar permiso para crear llamados de atención
         if (!$user->canCreateDisciplinaryActions()) {
@@ -70,6 +95,11 @@ class DisciplinaryActionController extends Controller
     public function store(Request $request, Student $student)
     {
         $user = auth()->user();
+        
+        // Coordinador solo puede ver, no crear
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para crear llamados de atención. Tu rol es de revisión y vigilancia.');
+        }
         
         // Verificar permiso para crear llamados de atención
         if (!$user->canCreateDisciplinaryActions()) {

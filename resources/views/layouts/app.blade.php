@@ -47,15 +47,31 @@
                             $user = Auth::user();
                         @endphp
                         
+                        @if($user->isAdmin())
                         <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-white/10 transition-colors {{ request()->routeIs('dashboard') ? 'bg-white/20' : '' }}">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                             </svg>
                             <span class="font-medium">Dashboard</span>
                         </a>
+                        @elseif($user->isCoordinator())
+                        <a href="{{ route('coordinator.dashboard') }}" class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-white/10 transition-colors {{ request()->routeIs('coordinator.*') ? 'bg-white/20' : '' }}">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            <span class="font-medium">Panel de Vigilancia</span>
+                        </a>
+                        @elseif($user->isInstructor())
+                        <a href="{{ route('instructor.dashboard') }}" class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-white/10 transition-colors {{ request()->routeIs('instructor.*') ? 'bg-white/20' : '' }}">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            <span class="font-medium">Panel del Instructor</span>
+                        </a>
+                        @endif
 
-                        @if($user->canManageAcademicStructure())
-                        <!-- Gestión Académica (Admin y Coordinador) -->
+                        @if($user->canManageAcademicStructure() || $user->isCoordinator())
+                        <!-- Gestión Académica (Admin y Coordinador - Coordinador solo lectura) -->
                         <a href="{{ route('students.index') }}" class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-white/10 transition-colors {{ request()->routeIs('students.*') ? 'bg-white/20' : '' }}">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
@@ -84,7 +100,7 @@
                             <span class="font-medium">Instructores</span>
                         </a>
 
-                        <a href="{{ route('competencias.index') }}" class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-white/10 transition-colors {{ request()->routeIs('competencias.*') ? 'bg-white/20' : '' }}">
+                        <a href="{{ route('competencias.index') }}" class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-white/10 transition-colors {{ request()->routeIs('programs.*') || request()->routeIs('competencias.*') ? 'bg-white/20' : '' }}">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
                             </svg>
@@ -92,8 +108,8 @@
                         </a>
                         @endif
 
-                        @if($user->canManageAttendance())
-                        <!-- Asistencias (Admin, Coordinador e Instructores) -->
+                        @if($user->canViewAttendance())
+                        <!-- Asistencias (Admin, Coordinador e Instructores - Coordinador solo lectura) -->
                         <a href="{{ route('attendance-lists.index') }}" class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-white/10 transition-colors {{ request()->routeIs('attendance-lists.*') ? 'bg-white/20' : '' }}">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
@@ -102,18 +118,9 @@
                         </a>
                         @endif
 
-                        @if($user->canGrade())
-                        <!-- Calificaciones (Solo Admin e Instructores, NO Coordinador) -->
-                        <a href="{{ route('grading.index') }}" class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-white/10 transition-colors {{ request()->routeIs('grading.*') ? 'bg-white/20' : '' }}">
-                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span class="font-medium">Calificaciones</span>
-                        </a>
-                        @endif
 
-                        @if($user->canCreateDisciplinaryActions())
-                        <!-- Llamados de Atención (Admin, Coordinador e Instructores) -->
+                        @if($user->canViewDisciplinaryActions())
+                        <!-- Llamados de Atención (Admin, Coordinador e Instructores - Coordinador solo lectura) -->
                         <a href="{{ route('disciplinary-actions.global-index') }}" class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-white/10 transition-colors {{ request()->routeIs('disciplinary-actions.*') ? 'bg-white/20' : '' }}">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
@@ -122,12 +129,15 @@
                         </a>
                         @endif
 
+                        @if(!$user->isCoordinator())
+                        <!-- Planes de Mejoramiento (NO para Coordinador) -->
                         <a href="{{ route('improvement-plans.index') }}" class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-white/10 transition-colors {{ request()->routeIs('improvement-plans.*') ? 'bg-white/20' : '' }}">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
                             <span class="font-medium">Planes de Mejoramiento</span>
                         </a>
+                        @endif
 
                         @if($user->canViewReports())
                         <!-- Reportes (Solo Admin y Coordinador) -->

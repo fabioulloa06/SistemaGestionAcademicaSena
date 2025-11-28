@@ -9,10 +9,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('improvement_plans', function (Blueprint $table) {
-            $table->foreignId('student_id')->nullable()->constrained('students')->onDelete('cascade');
-            $table->enum('type', ['Académico', 'Disciplinario'])->default('Académico');
+            if (!Schema::hasColumn('improvement_plans', 'student_id')) {
+                $table->foreignId('student_id')->nullable()->constrained('students')->onDelete('cascade');
+            }
+            if (!Schema::hasColumn('improvement_plans', 'type')) {
+                $table->enum('type', ['Académico', 'Disciplinario'])->default('Académico');
+            }
             // Hacer disciplinary_action_id nullable porque puede ser un plan académico general o vinculado a múltiples
-            $table->foreignId('disciplinary_action_id')->nullable()->change();
+            if (Schema::hasColumn('improvement_plans', 'disciplinary_action_id')) {
+                $table->foreignId('disciplinary_action_id')->nullable()->change();
+            }
         });
     }
 

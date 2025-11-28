@@ -7,9 +7,11 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="bi bi-people-fill"></i> Lista de Estudiantes</h1>
+        @if(!auth()->user()->isCoordinator())
         <a href="{{ route('students.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Crear Estudiante
         </a>
+        @endif
     </div>
 
     <!-- Formulario de búsqueda y filtros -->
@@ -88,14 +90,32 @@
                                    title="Ver detalles">
                                     <i class="bi bi-eye"></i>
                                 </a>
+                                @if(!auth()->user()->isCoordinator())
                                 <a href="{{ route('students.edit', $student) }}" 
                                    class="btn btn-warning btn-sm" 
                                    title="Editar">
                                     <i class="bi bi-pencil"></i>
                                 </a>
+                                @endif
+                                @php
+                                    $user = auth()->user();
+                                    $canView = $user->canViewDisciplinaryActions();
+                                    $hasAccess = false;
+                                    if ($canView) {
+                                        if ($user->isAdmin() || $user->isCoordinator()) {
+                                            $hasAccess = true;
+                                        } elseif ($user->isInstructor()) {
+                                            $groupIds = $user->getAccessibleGroupIds();
+                                            $hasAccess = in_array($student->group_id, $groupIds);
+                                        }
+                                    }
+                                @endphp
+                                @if($hasAccess)
                                 <a href="{{ route('students.disciplinary_actions.index', $student) }}" class="btn btn-danger btn-sm" title="Llamados de Atención">
                                     <i class="bi bi-exclamation-triangle"></i>
                                 </a>
+                                @endif
+                                @if(!auth()->user()->isCoordinator())
                                 <form action="{{ route('students.destroy', $student) }}" 
                                       method="POST" 
                                       style="display:inline-block"
@@ -106,6 +126,7 @@
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

@@ -22,7 +22,9 @@ class StudentController extends Controller
         }
         
         $groupIds = $user->getAccessibleGroupIds();
-        $query = \App\Models\Student::with(['group.program', 'user'])->where('activo', true);
+        $query = \App\Models\Student::with(['group' => function($q) {
+            $q->with('program');
+        }])->where('activo', true);
 
         // Filtrar por grupos accesibles
         if ($user->isInstructor() || $user->isStudent()) {
@@ -64,6 +66,17 @@ class StudentController extends Controller
      */
     public function create()
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no crear
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para crear estudiantes. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para crear estudiantes.');
+        }
+        
         $groups = \App\Models\Group::with('program')->where('activo', true)->get();
         return view('students.create', compact('groups'));
     }
@@ -73,6 +86,17 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no crear
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para crear estudiantes. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para crear estudiantes.');
+        }
+        
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'documento' => 'required|string|unique:students,documento',
@@ -111,6 +135,17 @@ class StudentController extends Controller
      */
     public function edit(string $id)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no editar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para editar estudiantes. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para editar estudiantes.');
+        }
+        
         $student = \App\Models\Student::findOrFail($id);
         $groups = \App\Models\Group::with('program')->where('activo', true)->get();
         return view('students.edit', compact('student', 'groups'));
@@ -121,6 +156,17 @@ class StudentController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no editar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para editar estudiantes. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para editar estudiantes.');
+        }
+        
         $student = \App\Models\Student::findOrFail($id);
 
         $validated = $request->validate([
@@ -159,6 +205,17 @@ class StudentController extends Controller
      */
     public function destroy(string $id)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no eliminar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para eliminar estudiantes. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para eliminar estudiantes.');
+        }
+        
         $student = \App\Models\Student::findOrFail($id);
         $student->delete();
 

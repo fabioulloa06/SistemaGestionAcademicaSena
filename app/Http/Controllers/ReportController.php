@@ -18,39 +18,44 @@ class ReportController extends Controller
 
     public function absences(Request $request)
     {
-        $groups = Group::all();
-        $competencias = Competencia::all();
+        // Optimizar: solo cargar grupos y competencias activos
+        $groups = Group::where('activo', true)->with('program')->orderBy('numero_ficha')->get();
+        $competencias = Competencia::where('activo', true)->orderBy('codigo')->get();
         
-        $query = Attendance_list::with(['student.group', 'competencia']);
+        // Optimizar: usar join en lugar de whereHas para mejor rendimiento
+        $query = Attendance_list::with(['student.group.program', 'competencia'])
+            ->join('students', 'attendance_lists.student_id', '=', 'students.id');
 
         if ($request->has('group_id') && $request->group_id) {
-            $query->whereHas('student', function($q) use ($request) {
-                $q->where('group_id', $request->group_id);
-            });
+            // Optimizar: usar join en lugar de whereHas
+            $query->where('students.group_id', $request->group_id);
         }
 
         if ($request->has('competencia_id') && $request->competencia_id) {
-            $query->where('competencia_id', $request->competencia_id);
+            $query->where('attendance_lists.competencia_id', $request->competencia_id);
         }
 
         if ($request->has('student_document') && $request->student_document) {
-            $query->whereHas('student', function($q) use ($request) {
-                $q->where('documento', 'like', '%' . $request->student_document . '%');
-            });
+            // Optimizar: usar join en lugar de whereHas
+            $query->where('students.documento', 'like', '%' . $request->student_document . '%');
         }
 
         if ($request->has('date_start') && $request->date_start) {
-            $query->whereDate('fecha', '>=', $request->date_start);
+            $query->whereDate('attendance_lists.fecha', '>=', $request->date_start);
         }
 
         if ($request->has('date_end') && $request->date_end) {
-            $query->whereDate('fecha', '<=', $request->date_end);
+            $query->whereDate('attendance_lists.fecha', '<=', $request->date_end);
         }
 
         // Solo mostrar inasistencias (ausente o justificado)
-        $query->whereIn('estado', ['ausente', 'justificado']);
+        $query->whereIn('attendance_lists.estado', ['ausente', 'justificado']);
 
-        $attendances = $query->orderBy('fecha', 'desc')->paginate(20);
+        // Seleccionar solo columnas de attendance_lists para evitar conflictos
+        $attendances = $query->select('attendance_lists.*')
+            ->orderBy('attendance_lists.fecha', 'desc')
+            ->orderBy('attendance_lists.id', 'desc')
+            ->paginate(20);
 
         return view('reports.absences', compact('attendances', 'groups', 'competencias'));
     }
@@ -59,31 +64,32 @@ class ReportController extends Controller
     {
         $fileName = 'reporte_inasistencias_' . date('Y-m-d_H-i') . '.csv';
         
-        $query = Attendance_list::with(['student.group', 'competencia']);
+        // Optimizar: usar join en lugar de whereHas
+        $query = Attendance_list::with(['student.group.program', 'competencia'])
+            ->join('students', 'attendance_lists.student_id', '=', 'students.id');
 
-        // Aplicar mismos filtros
+        // Aplicar mismos filtros optimizados
         if ($request->has('group_id') && $request->group_id) {
-            $query->whereHas('student', function($q) use ($request) {
-                $q->where('group_id', $request->group_id);
-            });
+            $query->where('students.group_id', $request->group_id);
         }
         if ($request->has('competencia_id') && $request->competencia_id) {
-            $query->where('competencia_id', $request->competencia_id);
+            $query->where('attendance_lists.competencia_id', $request->competencia_id);
         }
         if ($request->has('student_document') && $request->student_document) {
-            $query->whereHas('student', function($q) use ($request) {
-                $q->where('documento', 'like', '%' . $request->student_document . '%');
-            });
+            $query->where('students.documento', 'like', '%' . $request->student_document . '%');
         }
         if ($request->has('date_start') && $request->date_start) {
-            $query->whereDate('fecha', '>=', $request->date_start);
+            $query->whereDate('attendance_lists.fecha', '>=', $request->date_start);
         }
         if ($request->has('date_end') && $request->date_end) {
-            $query->whereDate('fecha', '<=', $request->date_end);
+            $query->whereDate('attendance_lists.fecha', '<=', $request->date_end);
         }
-        $query->whereIn('estado', ['ausente', 'justificado']);
+        $query->whereIn('attendance_lists.estado', ['ausente', 'justificado']);
 
-        $attendances = $query->orderBy('fecha', 'desc')->get();
+        $attendances = $query->select('attendance_lists.*')
+            ->orderBy('attendance_lists.fecha', 'desc')
+            ->orderBy('attendance_lists.id', 'desc')
+            ->get();
 
         $headers = array(
             "Content-type"        => "text/csv",

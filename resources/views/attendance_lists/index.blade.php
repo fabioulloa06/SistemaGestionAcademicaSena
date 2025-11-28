@@ -7,14 +7,16 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="bi bi-calendar-check-fill"></i> Historial de Asistencias</h1>
-        <a href="{{ route('attendance.bulk.create') }}" class="btn btn-primary">
+        @if(!auth()->user()->isCoordinator())
+        <a href="{{ route('attendance-lists.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Nueva Asistencia
         </a>
+        @endif
     </div>
 
     <div class="card mb-4">
         <div class="card-body">
-            <form method="GET" action="{{ route('attendance.index') }}" class="row g-3">
+            <form method="GET" action="{{ route('attendance-lists.index') }}" class="row g-3">
                 <div class="col-md-4">
                     <label class="form-label">Filtrar por Fecha</label>
                     <input type="date" name="fecha" class="form-control" value="{{ request('fecha') }}">

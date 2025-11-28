@@ -11,9 +11,11 @@
                 
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h3 class="text-lg font-bold">Listado de Fichas</h3>
+                    @if(!auth()->user()->isCoordinator())
                     <a href="{{ route('groups.create') }}" class="btn btn-primary">
                         <i class="bi bi-plus-lg"></i> Nueva Ficha
                     </a>
+                    @endif
                 </div>
 
                 <form action="{{ route('groups.index') }}" method="GET" class="row g-3 mb-4">
@@ -91,6 +93,7 @@
                                                title="Ver detalles">
                                                 <i class="bi bi-eye"></i>
                                             </a>
+                                            @if(!auth()->user()->isCoordinator())
                                             <a href="{{ route('groups.edit', $group) }}" 
                                                class="btn btn-warning btn-sm" 
                                                title="Editar">
@@ -106,6 +109,7 @@
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

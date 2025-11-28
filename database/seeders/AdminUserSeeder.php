@@ -20,22 +20,15 @@ class AdminUserSeeder extends Seeder
             User::create([
                 'name' => 'Administrador Sistema',
                 'email' => 'admin',
-                'password_hash' => Hash::make('admin123'), // Contraseña por defecto
+                'password' => Hash::make('admin123'), // Contraseña por defecto
                 'role' => 'admin',
-                'rol' => 'admin', // Compatibilidad
-                'nombres' => 'Administrador',
-                'apellidos' => 'Sistema',
-                'numero_documento' => '000000000',
-                'tipo_documento' => 'CC',
-                'estado' => 'activo',
             ]);
             $this->command->info('Usuario Admin creado: User: admin, Pass: admin123');
         } else {
             // Asegurar que tenga el rol correcto
             $admin->update([
                 'role' => 'admin',
-                'rol' => 'admin',
-                'password_hash' => Hash::make('admin123'), // Resetear contraseña para asegurar acceso
+                'password' => Hash::make('admin123'), // Resetear contraseña para asegurar acceso
             ]);
             $this->command->info('Usuario Admin actualizado.');
         }

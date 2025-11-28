@@ -16,11 +16,33 @@ class CompetenciaController extends Controller
 
     public function create(Program $program)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no crear
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para crear competencias. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para crear competencias.');
+        }
+        
         return view('competencias.create', compact('program'));
     }
 
     public function store(Request $request, Program $program)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no crear
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para crear competencias. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para crear competencias.');
+        }
+        
         $validated = $request->validate([
             'codigo' => 'required|string|unique:competencias,codigo',
             'nombre' => 'required|string|max:255',
@@ -42,11 +64,33 @@ class CompetenciaController extends Controller
 
     public function edit(Competencia $competencia)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no editar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para editar competencias. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para editar competencias.');
+        }
+        
         return view('competencias.edit', compact('competencia'));
     }
 
     public function update(Request $request, Competencia $competencia)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no actualizar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para actualizar competencias. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para actualizar competencias.');
+        }
+        
         $validated = $request->validate([
             'codigo' => 'required|string|unique:competencias,codigo,' . $competencia->id,
             'nombre' => 'required|string|max:255',
@@ -62,6 +106,17 @@ class CompetenciaController extends Controller
 
     public function destroy(Competencia $competencia)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no eliminar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para eliminar competencias. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para eliminar competencias.');
+        }
+        
         if ($competencia->learningOutcomes()->count() > 0) {
             return back()->with('error', 'No se puede eliminar una competencia con resultados de aprendizaje asociados.');
         }
@@ -75,6 +130,17 @@ class CompetenciaController extends Controller
 
     public function assignInstructors(Competencia $competencia)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no asignar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para asignar instructores. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para asignar instructores.');
+        }
+        
         $instructors = \App\Models\Instructor::where('activo', true)->get();
         $assignedInstructors = $competencia->instructors->pluck('id')->toArray();
         
@@ -83,6 +149,17 @@ class CompetenciaController extends Controller
 
     public function storeInstructors(Request $request, Competencia $competencia)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no asignar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para asignar instructores. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para asignar instructores.');
+        }
+        
         $validated = $request->validate([
             'instructors' => 'required|array',
             'instructors.*' => 'exists:instructors,id',

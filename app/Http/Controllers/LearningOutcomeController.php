@@ -16,11 +16,33 @@ class LearningOutcomeController extends Controller
 
     public function create(Competencia $competencia)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no crear
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para crear resultados de aprendizaje. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para crear resultados de aprendizaje.');
+        }
+        
         return view('learning_outcomes.create', compact('competencia'));
     }
 
     public function store(Request $request, Competencia $competencia)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no crear
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para crear resultados de aprendizaje. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para crear resultados de aprendizaje.');
+        }
+        
         $validated = $request->validate([
             'codigo' => 'required|string|unique:learning_outcomes,codigo',
             'nombre' => 'required|string|max:255',
@@ -41,11 +63,33 @@ class LearningOutcomeController extends Controller
 
     public function edit(LearningOutcome $learningOutcome)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no editar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para editar resultados de aprendizaje. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para editar resultados de aprendizaje.');
+        }
+        
         return view('learning_outcomes.edit', compact('learningOutcome'));
     }
 
     public function update(Request $request, LearningOutcome $learningOutcome)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no actualizar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para actualizar resultados de aprendizaje. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para actualizar resultados de aprendizaje.');
+        }
+        
         $validated = $request->validate([
             'codigo' => 'required|string|unique:learning_outcomes,codigo,' . $learningOutcome->id,
             'nombre' => 'required|string|max:255',
@@ -61,6 +105,17 @@ class LearningOutcomeController extends Controller
 
     public function destroy(LearningOutcome $learningOutcome)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no eliminar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para eliminar resultados de aprendizaje. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para eliminar resultados de aprendizaje.');
+        }
+        
         if ($learningOutcome->studentLearningOutcomes()->count() > 0) {
             return back()->with('error', 'No se puede eliminar un RA con calificaciones registradas.');
         }

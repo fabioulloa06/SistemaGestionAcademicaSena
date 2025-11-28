@@ -39,10 +39,14 @@
                                     </td>
                                     <td>{{ \Carbon\Carbon::parse($group->fecha_inicio)->format('d/m/Y') }}</td>
                                     <td>
+                                        @if(!auth()->user()->isCoordinator())
                                         <a href="{{ route('instructor_assignments.edit', $group) }}" 
                                            class="btn btn-primary btn-sm">
                                             <i class="bi bi-person-plus"></i> Asignar Instructores
                                         </a>
+                                        @else
+                                        <span class="badge bg-secondary">Solo lectura</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

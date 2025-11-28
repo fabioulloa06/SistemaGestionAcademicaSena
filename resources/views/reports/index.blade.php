@@ -32,7 +32,7 @@
                         </div>
                         <div class="ml-4">
                             <h3 class="text-lg font-bold text-gray-500">Rendimiento Académico</h3>
-                            <p class="text-gray-500 mt-1 text-sm">Próximamente: Análisis de calificaciones por competencia.</p>
+                            <p class="text-gray-500 mt-1 text-sm">Próximamente: Análisis de rendimiento académico.</p>
                         </div>
                     </div>
                 </div>

@@ -34,6 +34,17 @@ class ProgramController extends Controller
      */
     public function create()
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no crear
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para crear programas. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para crear programas.');
+        }
+        
         return view('programs.create');
     }
 
@@ -42,6 +53,17 @@ class ProgramController extends Controller
      */
     public function store(Request $request)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no crear
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para crear programas. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para crear programas.');
+        }
+        
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'codigo' => 'required|string|unique:programs,codigo',
@@ -71,6 +93,17 @@ class ProgramController extends Controller
      */
     public function edit(string $id)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no editar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para editar programas. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para editar programas.');
+        }
+        
         $program = \App\Models\Program::findOrFail($id);
         return view('programs.edit', compact('program'));
     }
@@ -80,6 +113,17 @@ class ProgramController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no editar
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para editar programas. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para editar programas.');
+        }
+        
         $program = \App\Models\Program::findOrFail($id);
 
         $validated = $request->validate([

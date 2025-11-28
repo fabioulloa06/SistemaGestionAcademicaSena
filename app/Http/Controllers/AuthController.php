@@ -40,20 +40,19 @@ class AuthController extends Controller
         if ($email === 'admin') {
             $user = \App\Models\User::where('email', 'admin')->first();
             
-            if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password_hash)) {
+            if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
                 Auth::login($user, $request->filled('remember'));
                 $request->session()->regenerate();
-                return redirect()->intended('/dashboard');
+                return $this->redirectByRole($user);
             }
         } else {
             // Login normal para otros usuarios
-            // Usar password_hash en lugar de password
             $user = \App\Models\User::where('email', $email)->first();
             
-            if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password_hash)) {
+            if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
                 Auth::login($user, $request->filled('remember'));
                 $request->session()->regenerate();
-                return redirect()->intended('/dashboard');
+                return $this->redirectByRole($user);
             }
         }
 
@@ -62,6 +61,23 @@ class AuthController extends Controller
         ]);
     }
 
+
+    /**
+     * Redirige según el rol del usuario
+     */
+    private function redirectByRole($user)
+    {
+        if ($user->isStudent()) {
+            return redirect()->route('student.dashboard');
+        } elseif ($user->isCoordinator()) {
+            return redirect()->route('coordinator.dashboard');
+        } elseif ($user->isInstructor()) {
+            return redirect()->route('instructor.dashboard');
+        } else {
+            // Admin va al dashboard principal
+            return redirect()->intended('/dashboard');
+        }
+    }
 
     /**
      * Cierra la sesión

@@ -16,9 +16,9 @@ class AttendanceController extends Controller
     {
         $user = auth()->user();
         
-        // Verificar permisos
-        if (!$user->canManageAttendance()) {
-            abort(403, 'No tienes permiso para gestionar asistencias.');
+        // Verificar permisos - Coordinador puede ver pero no gestionar
+        if (!$user->canViewAttendance()) {
+            abort(403, 'No tienes permiso para ver asistencias.');
         }
         
         $groupIds = $user->getAccessibleGroupIds();
@@ -57,6 +57,11 @@ class AttendanceController extends Controller
     public function bulkCreate(Request $request)
     {
         $user = auth()->user();
+        
+        // Coordinador solo puede ver, no crear
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para tomar asistencias. Tu rol es de revisión y vigilancia.');
+        }
         
         // Verificar permiso para gestionar asistencias
         if (!$user->canManageAttendance()) {
@@ -98,6 +103,16 @@ class AttendanceController extends Controller
 
     public function bulkStore(Request $request)
     {
+        $user = auth()->user();
+        
+        // Coordinador solo puede ver, no crear
+        if ($user->isCoordinator()) {
+            abort(403, 'No tienes permiso para registrar asistencias. Tu rol es de revisión y vigilancia.');
+        }
+        
+        if (!$user->canManageAttendance()) {
+            abort(403, 'No tienes permiso para registrar asistencias.');
+        }
         $validated = $request->validate([
             'group_id' => 'required|exists:groups,id',
             'instructor_id' => 'required|exists:instructors,id',
@@ -195,10 +210,10 @@ class AttendanceController extends Controller
         if (!empty($warnings)) {
             // Eliminar duplicados
             $warnings = array_unique($warnings);
-            return redirect()->route('attendance.index')->with('warning', implode('<br>', $warnings));
+            return redirect()->route('attendance-lists.index')->with('warning', implode('<br>', $warnings));
         }
 
-        return redirect()->route('attendance.index')->with('success', $message);
+        return redirect()->route('attendance-lists.index')->with('success', $message);
     }
 
     /**
@@ -206,7 +221,7 @@ class AttendanceController extends Controller
      */
     public function create()
     {
-        return redirect()->route('attendance.bulk.create');
+        return redirect()->route('attendance-lists.create');
     }
 
     /**

@@ -15,18 +15,21 @@ class ProgramSeeder extends Seeder
         // Crear programas
         $programs = [
             [
+                'codigo' => '228106',
                 'nombre' => 'Técnico en Programación de Software',
                 'descripcion' => 'Programa técnico enfocado en desarrollo de software',
                 'duracion_meses' => 24,
                 'nivel' => 'Técnico'
             ],
             [
+                'codigo' => '228107',
                 'nombre' => 'Técnico en Sistemas',
                 'descripcion' => 'Programa técnico en administración de sistemas',
                 'duracion_meses' => 24,
                 'nivel' => 'Técnico'
             ],
             [
+                'codigo' => '228108',
                 'nombre' => 'Técnico en Redes de Computadores',
                 'descripcion' => 'Programa técnico en infraestructura de redes',
                 'duracion_meses' => 24,

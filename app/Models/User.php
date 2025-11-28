@@ -63,7 +63,7 @@ class User extends Authenticatable
      */
     public function getAuthPassword()
     {
-        return $this->password_hash;
+        return $this->attributes['password'] ?? $this->password_hash ?? null;
     }
 
     /**
@@ -82,7 +82,7 @@ class User extends Authenticatable
      */
     public function getPasswordAttribute()
     {
-        return $this->password_hash;
+        return $this->attributes['password'] ?? $this->attributes['password_hash'] ?? null;
     }
 
     /**
@@ -90,8 +90,12 @@ class User extends Authenticatable
      */
     public function setPasswordAttribute($value)
     {
+        // Solo establecer password (la columna real en la BD)
         $this->attributes['password'] = $value;
-        $this->attributes['password_hash'] = $value;
+        // Si existe password_hash, también establecerlo para compatibilidad
+        if (isset($this->attributes['password_hash'])) {
+            $this->attributes['password_hash'] = $value;
+        }
     }
 
     // Relaciones
@@ -274,11 +278,19 @@ class User extends Authenticatable
     }
 
     /**
-     * ¿Puede gestionar asistencias?
+     * ¿Puede gestionar asistencias? (crear/editar)
      */
     public function canManageAttendance(): bool
     {
         return $this->isAdmin() || $this->isInstructor();
+    }
+    
+    /**
+     * ¿Puede ver asistencias? (solo lectura)
+     */
+    public function canViewAttendance(): bool
+    {
+        return $this->isAdmin() || $this->isCoordinator() || $this->isInstructor();
     }
 
     /**
