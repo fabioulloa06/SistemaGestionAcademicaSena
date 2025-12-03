@@ -26,11 +26,7 @@
                 </div>
             @endif
 
-            @if(session('info'))
-                <div class="alert alert-info">
-                    {{ session('info') }}
-                </div>
-            @endif
+{{-- Las alertas se manejan con SweetAlert2 en el layout principal --}}
 
             <form action="{{ route('improvement_plans.store') }}" method="POST">
                 @csrf

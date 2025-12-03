@@ -20,7 +20,7 @@ class LearningOutcome extends Model
 
     public function competencia()
     {
-        return $this->belongsTo(Competencia::class);
+        return $this->belongsTo(Competencia::class, 'competencia_id', 'id');
     }
 
     public function studentLearningOutcomes()

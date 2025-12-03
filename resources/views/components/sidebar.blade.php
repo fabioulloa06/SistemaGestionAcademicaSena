@@ -67,20 +67,20 @@
             @endif
 
             @if($user->canManageAttendance())
-            <!-- Asistencias (Admin, Coordinador e Instructores) -->
+            <!-- Inasistencias (Admin, Coordinador e Instructores) -->
             <hr class="my-4 border-gray-600">
-            <p class="px-4 text-xs text-gray-400 uppercase">Asistencias</p>
+            <p class="px-4 text-xs text-gray-400 uppercase">Inasistencias</p>
             
             <a href="{{ route('attendance-lists.index') }}" 
                class="flex items-center px-4 py-3 text-gray-300 transition-colors duration-200 transform rounded-md sena-sidebar-link {{ request()->routeIs('attendance-lists.*') ? 'active' : '' }}">
                 <i class="bi bi-calendar-check text-xl"></i>
-                <span class="mx-4 font-medium">Lista de Asistencias</span>
+                <span class="mx-4 font-medium">Lista de Inasistencias</span>
             </a>
 
             <a href="{{ route('attendance-lists.create') }}" 
                class="flex items-center px-4 py-3 text-gray-300 transition-colors duration-200 transform rounded-md sena-sidebar-link {{ request()->routeIs('attendance-lists.create') ? 'active' : '' }}">
                 <i class="bi bi-check2-square text-xl"></i>
-                <span class="mx-4 font-medium">Registrar Asistencia</span>
+                <span class="mx-4 font-medium">Registrar Inasistencias</span>
             </a>
             @endif
 
@@ -140,7 +140,7 @@
             <!-- User Section -->
             <div class="flex items-center px-4 py-3 mt-2 bg-black/20 rounded-lg">
                 <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                    <span class="font-bold text-sm" style="color: #238276;">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                    <span class="font-bold text-sm" style="color: #4d8e37;">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
                 </div>
                 <div class="mx-4 overflow-hidden flex-1">
                     <h4 class="text-sm font-medium text-white truncate">{{ $user->name }}</h4>

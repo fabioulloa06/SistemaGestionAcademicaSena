@@ -126,7 +126,7 @@ class StudentController extends Controller
      */
     public function show(string $id)
     {
-        $student = \App\Models\Student::with(['group.program', 'attendances'])->findOrFail($id);
+        $student = \App\Models\Student::with(['group.program', 'attendance_lists'])->findOrFail($id);
         return view('students.show', compact('student'));
     }
 

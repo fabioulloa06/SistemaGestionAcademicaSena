@@ -47,7 +47,8 @@ class GroupController extends Controller
     public function create()
     {
         $programs = \App\Models\Program::where('activo', true)->get();
-        return view('groups.create', compact('programs'));
+        $instructors = \App\Models\User::where('role', 'instructor')->get();
+        return view('groups.create', compact('programs', 'instructors'));
     }
 
     /**
@@ -58,7 +59,8 @@ class GroupController extends Controller
         $validated = $request->validate([
             'numero_ficha' => 'required|string|unique:groups,numero_ficha',
             'program_id' => 'required|exists:programs,id',
-            'jornada' => 'required|in:mañana,tarde,noche',
+            'instructor_lider_id' => 'nullable|exists:users,id',
+            'jornada' => 'required|in:mañana,tarde,noche,mixta',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after:fecha_inicio',
             'activo' => 'boolean',
@@ -75,7 +77,7 @@ class GroupController extends Controller
      */
     public function show(string $id)
     {
-        $group = \App\Models\Group::with(['program', 'students'])->findOrFail($id);
+        $group = \App\Models\Group::with(['program', 'students', 'instructorLider'])->findOrFail($id);
         return view('groups.show', compact('group'));
     }
 
@@ -86,7 +88,8 @@ class GroupController extends Controller
     {
         $group = \App\Models\Group::findOrFail($id);
         $programs = \App\Models\Program::where('activo', true)->get();
-        return view('groups.edit', compact('group', 'programs'));
+        $instructors = \App\Models\User::where('role', 'instructor')->get();
+        return view('groups.edit', compact('group', 'programs', 'instructors'));
     }
 
     /**
@@ -99,7 +102,8 @@ class GroupController extends Controller
         $validated = $request->validate([
             'numero_ficha' => 'required|string|unique:groups,numero_ficha,' . $group->id,
             'program_id' => 'required|exists:programs,id',
-            'jornada' => 'required|in:mañana,tarde,noche',
+            'instructor_lider_id' => 'nullable|exists:users,id',
+            'jornada' => 'required|in:mañana,tarde,noche,mixta',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after:fecha_inicio',
             'activo' => 'boolean',

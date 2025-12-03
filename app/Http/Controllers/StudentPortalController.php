@@ -15,17 +15,61 @@ class StudentPortalController extends Controller
             abort(403, 'No tienes un perfil de estudiante asociado.');
         }
 
-        // Resumen de Asistencias
-        $attendanceSummary = [
-            'total' => $student->attendance_lists()->count(),
-            'presente' => $student->attendance_lists()->where('estado', 'presente')->count(),
-            'ausente' => $student->attendance_lists()->where('estado', 'ausente')->count(),
-            'tarde' => $student->attendance_lists()->where('estado', 'tarde')->count(),
-            'justificado' => $student->attendance_lists()->where('estado', 'justificado')->count(),
+        // Resumen de INASISTENCIAS (solo se registran inasistencias)
+        $absenceSummary = [
+            'total_inasistencias' => $student->attendance_lists()->where('estado', 'ausente')->count(),
+            'consecutivas' => 0, // Se calculará después
+            'por_competencia' => [], // Se calculará después
         ];
 
-        // Últimas asistencias - Optimizado
+        // Calcular inasistencias consecutivas (2 o más días seguidos)
+        $absences = $student->attendance_lists()
+            ->where('estado', 'ausente')
+            ->orderBy('fecha', 'desc')
+            ->get()
+            ->groupBy('competencia_id');
+
+        $consecutiveCount = 0;
+        foreach ($absences as $competenciaId => $competenceAbsences) {
+            $dates = $competenceAbsences->pluck('fecha')->sort()->values();
+            $currentConsecutive = 1;
+            $maxConsecutive = 1;
+            
+            for ($i = 0; $i < $dates->count() - 1; $i++) {
+                $diff = $dates[$i]->diffInDays($dates[$i + 1]);
+                if ($diff === 1) {
+                    $currentConsecutive++;
+                    $maxConsecutive = max($maxConsecutive, $currentConsecutive);
+                } else {
+                    $currentConsecutive = 1;
+                }
+            }
+            
+            if ($maxConsecutive >= 2) {
+                $consecutiveCount++;
+            }
+        }
+        $absenceSummary['consecutivas'] = $consecutiveCount;
+
+        // Contar inasistencias por competencia
+        $absencesByCompetence = $student->attendance_lists()
+            ->where('estado', 'ausente')
+            ->with('competencia:id,nombre')
+            ->selectRaw('competencia_id, COUNT(*) as total')
+            ->groupBy('competencia_id')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'competencia' => $item->competencia->nombre ?? 'N/A',
+                    'total' => $item->total,
+                    'alerta' => $item->total >= 4 // Alerta si tiene 4 o más
+                ];
+            });
+        $absenceSummary['por_competencia'] = $absencesByCompetence;
+
+        // Últimas inasistencias - Optimizado
         $recentAttendances = $student->attendance_lists()
+            ->where('estado', 'ausente')
             ->with('competencia:id,nombre')
             ->select('id', 'student_id', 'fecha', 'estado', 'competencia_id', 'observaciones')
             ->orderBy('fecha', 'desc')
@@ -44,7 +88,7 @@ class StudentPortalController extends Controller
 
         return view('student.dashboard', compact(
             'student', 
-            'attendanceSummary', 
+            'absenceSummary', 
             'recentAttendances', 
             'activeDisciplinary',
             'recentDisciplinaryActions'

@@ -13,7 +13,159 @@ class ReportController extends Controller
 {
     public function index()
     {
-        return view('reports.index');
+        $user = auth()->user();
+        $now = \Carbon\Carbon::now();
+        $startOfMonth = $now->copy()->startOfMonth();
+        
+        // Obtener IDs de grupos accesibles
+        $groupIds = $user->getAccessibleGroupIds();
+        
+        // ========== ESTADÍSTICAS DE INASISTENCIAS ==========
+        
+        // Query base para inasistencias
+        $absencesQuery = Attendance_list::where('estado', 'ausente')
+            ->whereBetween('fecha', [$startOfMonth, $now]);
+        
+        if ($user->isInstructor() || $user->isStudent()) {
+            $absencesQuery->whereHas('student', function($q) use ($groupIds) {
+                $q->whereIn('group_id', $groupIds);
+            });
+        }
+        
+        // Total de inasistencias del mes
+        $totalInasistencias = $absencesQuery->count();
+        
+        // Inasistencias consecutivas (2 o más días seguidos)
+        $consecutiveAbsences = Attendance_list::where('estado', 'ausente')
+            ->whereBetween('fecha', [$startOfMonth, $now])
+            ->whereHas('student', function($q) use ($groupIds, $user) {
+                if ($user->isInstructor() || $user->isStudent()) {
+                    $q->whereIn('group_id', $groupIds);
+                }
+            })
+            ->selectRaw('student_id, competencia_id, COUNT(*) as consecutive_count')
+            ->groupBy('student_id', 'competencia_id')
+            ->havingRaw('consecutive_count >= 2')
+            ->count();
+        
+        // Inasistencias por competencia (4 o más)
+        $absencesByCompetence = Attendance_list::where('estado', 'ausente')
+            ->whereBetween('fecha', [$startOfMonth, $now])
+            ->whereHas('student', function($q) use ($groupIds, $user) {
+                if ($user->isInstructor() || $user->isStudent()) {
+                    $q->whereIn('group_id', $groupIds);
+                }
+            })
+            ->selectRaw('student_id, competencia_id, COUNT(*) as total_count')
+            ->groupBy('student_id', 'competencia_id')
+            ->havingRaw('total_count >= 4')
+            ->count();
+        
+        // Inasistencias por grupo
+        $absencesByGroup = Attendance_list::where('estado', 'ausente')
+            ->whereBetween('fecha', [$startOfMonth, $now])
+            ->whereHas('student', function($q) use ($groupIds, $user) {
+                if ($user->isInstructor() || $user->isStudent()) {
+                    $q->whereIn('group_id', $groupIds);
+                }
+            })
+            ->join('students', 'attendance_lists.student_id', '=', 'students.id')
+            ->join('groups', 'students.group_id', '=', 'groups.id')
+            ->selectRaw('groups.numero_ficha, groups.id, COUNT(*) as total')
+            ->groupBy('groups.id', 'groups.numero_ficha')
+            ->orderBy('total', 'desc')
+            ->limit(5)
+            ->get();
+        
+        // Inasistencias por competencia (top 5)
+        $absencesByCompetencia = Attendance_list::where('estado', 'ausente')
+            ->whereBetween('fecha', [$startOfMonth, $now])
+            ->whereHas('student', function($q) use ($groupIds, $user) {
+                if ($user->isInstructor() || $user->isStudent()) {
+                    $q->whereIn('group_id', $groupIds);
+                }
+            })
+            ->join('competencias', 'attendance_lists.competencia_id', '=', 'competencias.id')
+            ->selectRaw('competencias.nombre, competencias.id, COUNT(*) as total')
+            ->groupBy('competencias.id', 'competencias.nombre')
+            ->orderBy('total', 'desc')
+            ->limit(5)
+            ->get();
+        
+        // ========== ESTADÍSTICAS DE LLAMADOS DE ATENCIÓN ==========
+        
+        $disciplinaryQuery = \App\Models\DisciplinaryAction::whereBetween('date', [$startOfMonth, $now]);
+        
+        if ($user->isInstructor() || $user->isStudent()) {
+            $disciplinaryQuery->whereHas('student', function($q) use ($groupIds) {
+                $q->whereIn('group_id', $groupIds);
+            });
+        }
+        
+        // Total de llamados de atención
+        $totalLlamados = $disciplinaryQuery->count();
+        
+        // Llamados por tipo (Verbal/Escrito)
+        $llamadosPorTipo = $disciplinaryQuery->clone()
+            ->selectRaw('tipo_llamado, COUNT(*) as total')
+            ->groupBy('tipo_llamado')
+            ->pluck('total', 'tipo_llamado')
+            ->toArray();
+        
+        $llamadosVerbales = $llamadosPorTipo['verbal'] ?? 0;
+        $llamadosEscritos = $llamadosPorTipo['written'] ?? 0;
+        
+        // Llamados por tipo de falta
+        $llamadosPorFalta = $disciplinaryQuery->clone()
+            ->selectRaw('tipo_falta, COUNT(*) as total')
+            ->groupBy('tipo_falta')
+            ->pluck('total', 'tipo_falta')
+            ->toArray();
+        
+        $faltasAcademicas = $llamadosPorFalta['Académica'] ?? 0;
+        $faltasDisciplinarias = $llamadosPorFalta['Disciplinaria'] ?? 0;
+        
+        // Llamados por gravedad
+        $llamadosPorGravedad = $disciplinaryQuery->clone()
+            ->selectRaw('gravedad, COUNT(*) as total')
+            ->groupBy('gravedad')
+            ->pluck('total', 'gravedad')
+            ->toArray();
+        
+        $gravedadLeve = $llamadosPorGravedad['Leve'] ?? 0;
+        $gravedadGrave = $llamadosPorGravedad['Grave'] ?? 0;
+        $gravedadGravísima = $llamadosPorGravedad['Gravísima'] ?? 0;
+        
+        // Top estudiantes con más llamados
+        $topEstudiantesLlamados = \App\Models\DisciplinaryAction::whereBetween('date', [$startOfMonth, $now])
+            ->whereHas('student', function($q) use ($groupIds, $user) {
+                if ($user->isInstructor() || $user->isStudent()) {
+                    $q->whereIn('group_id', $groupIds);
+                }
+            })
+            ->selectRaw('student_id, COUNT(*) as total')
+            ->groupBy('student_id')
+            ->orderBy('total', 'desc')
+            ->limit(5)
+            ->with('student:id,nombre,documento')
+            ->get();
+        
+        return view('reports.index', compact(
+            'totalInasistencias',
+            'consecutiveAbsences',
+            'absencesByCompetence',
+            'absencesByGroup',
+            'absencesByCompetencia',
+            'totalLlamados',
+            'llamadosVerbales',
+            'llamadosEscritos',
+            'faltasAcademicas',
+            'faltasDisciplinarias',
+            'gravedadLeve',
+            'gravedadGrave',
+            'gravedadGravísima',
+            'topEstudiantesLlamados'
+        ));
     }
 
     public function absences(Request $request)

@@ -18,11 +18,6 @@ class LearningOutcomeController extends Controller
     {
         $user = auth()->user();
         
-        // Coordinador solo puede ver, no crear
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para crear resultados de aprendizaje. Tu rol es de revisión y vigilancia.');
-        }
-        
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para crear resultados de aprendizaje.');
         }
@@ -33,11 +28,6 @@ class LearningOutcomeController extends Controller
     public function store(Request $request, Competencia $competencia)
     {
         $user = auth()->user();
-        
-        // Coordinador solo puede ver, no crear
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para crear resultados de aprendizaje. Tu rol es de revisión y vigilancia.');
-        }
         
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para crear resultados de aprendizaje.');
@@ -65,11 +55,6 @@ class LearningOutcomeController extends Controller
     {
         $user = auth()->user();
         
-        // Coordinador solo puede ver, no editar
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para editar resultados de aprendizaje. Tu rol es de revisión y vigilancia.');
-        }
-        
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para editar resultados de aprendizaje.');
         }
@@ -80,11 +65,6 @@ class LearningOutcomeController extends Controller
     public function update(Request $request, LearningOutcome $learningOutcome)
     {
         $user = auth()->user();
-        
-        // Coordinador solo puede ver, no actualizar
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para actualizar resultados de aprendizaje. Tu rol es de revisión y vigilancia.');
-        }
         
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para actualizar resultados de aprendizaje.');
@@ -106,11 +86,6 @@ class LearningOutcomeController extends Controller
     public function destroy(LearningOutcome $learningOutcome)
     {
         $user = auth()->user();
-        
-        // Coordinador solo puede ver, no eliminar
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para eliminar resultados de aprendizaje. Tu rol es de revisión y vigilancia.');
-        }
         
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para eliminar resultados de aprendizaje.');

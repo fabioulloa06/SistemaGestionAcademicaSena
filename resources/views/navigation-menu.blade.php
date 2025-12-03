@@ -35,7 +35,7 @@
                     
                     @if($user->canManageAttendance())
                     <x-nav-link href="{{ route('attendance-lists.index') }}" :active="request()->routeIs('attendance-lists.*')">
-                        Asistencias
+                        Inasistencias
                     </x-nav-link>
                     @endif
                     

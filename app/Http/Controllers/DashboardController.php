@@ -51,8 +51,9 @@ class DashboardController extends Controller
         }
         $totalStudents = $studentQuery->count();
         
-        // Estadísticas de Asistencias del mes actual (optimizado con agregación en BD)
-        $attendanceQuery = Attendance_list::whereBetween('fecha', [$startOfMonth, $now]);
+        // Estadísticas de INASISTENCIAS del mes actual (optimizado con agregación en BD)
+        $attendanceQuery = Attendance_list::whereBetween('fecha', [$startOfMonth, $now])
+            ->where('estado', 'ausente'); // Solo contar inasistencias
             
         if ($user->isInstructor() || $user->isStudent()) {
             $attendanceQuery->whereHas('student', function($q) use ($groupIds) {
@@ -60,17 +61,39 @@ class DashboardController extends Controller
             });
         }
         
-        // Optimizar: usar agregación en BD en lugar de cargar todos los registros
-        $attendanceStats = $attendanceQuery
-            ->selectRaw('estado, COUNT(*) as count')
-            ->groupBy('estado')
-            ->pluck('count', 'estado')
-            ->toArray();
+        // Contar inasistencias por competencia
+        $totalInasistencias = $attendanceQuery->count();
         
-        $totalAsistencias = $attendanceStats['presente'] ?? 0;
-        $totalFallas = $attendanceStats['ausente'] ?? 0;
-        $totalExcusas = $attendanceStats['excusa'] ?? 0;
-        $totalRetardos = $attendanceStats['tardanza'] ?? 0;
+        // Inasistencias consecutivas (2 o más días seguidos)
+        $consecutiveAbsences = Attendance_list::whereBetween('fecha', [$startOfMonth, $now])
+            ->where('estado', 'ausente')
+            ->whereHas('student', function($q) use ($groupIds, $user) {
+                if ($user->isInstructor() || $user->isStudent()) {
+                    $q->whereIn('group_id', $groupIds);
+                }
+            })
+            ->selectRaw('student_id, competencia_id, COUNT(*) as consecutive_count')
+            ->groupBy('student_id', 'competencia_id')
+            ->havingRaw('consecutive_count >= 2')
+            ->count();
+        
+        // Inasistencias totales (4 o más por competencia)
+        $totalAbsencesByCompetence = Attendance_list::whereBetween('fecha', [$startOfMonth, $now])
+            ->where('estado', 'ausente')
+            ->whereHas('student', function($q) use ($groupIds, $user) {
+                if ($user->isInstructor() || $user->isStudent()) {
+                    $q->whereIn('group_id', $groupIds);
+                }
+            })
+            ->selectRaw('student_id, competencia_id, COUNT(*) as total_count')
+            ->groupBy('student_id', 'competencia_id')
+            ->havingRaw('total_count >= 4')
+            ->count();
+        
+        $totalFallas = $totalInasistencias;
+        $totalAsistencias = 0; // Ya no se cuenta asistencia, solo inasistencias
+        $totalExcusas = 0;
+        $totalRetardos = 0;
         
         // Si no hay grupos activos, establecer totales en 0
         $totalGroups = $groups->count();
@@ -118,11 +141,11 @@ class DashboardController extends Controller
         $planesAbiertos = $improvementStats->abiertos ?? 0;
         $planesCerrados = $improvementStats->cerrados ?? 0;
         
-        // Datos para gráficos
+        // Datos para gráficos - Solo inasistencias
         $attendanceChartData = [
-            'labels' => ['Asistencias', 'Fallas', 'Excusas', 'Retardos'],
-            'data' => [$totalAsistencias, $totalFallas, $totalExcusas, $totalRetardos],
-            'colors' => ['#28a745', '#dc3545', '#ffc107', '#fd7e14']
+            'labels' => ['Inasistencias Totales', 'Consecutivas (≥2 días)', 'Por Competencia (≥4)'],
+            'data' => [$totalInasistencias, $consecutiveAbsences, $totalAbsencesByCompetence],
+            'colors' => ['#dc3545', '#ff6b6b', '#ee5a6f']
         ];
         
         $faltasChartData = [
@@ -139,10 +162,10 @@ class DashboardController extends Controller
         
         return view('dashboard', compact(
             'totalStudents',
-            'totalAsistencias',
+            'totalInasistencias',
+            'consecutiveAbsences',
+            'totalAbsencesByCompetence',
             'totalFallas',
-            'totalExcusas',
-            'totalRetardos',
             'faltasAcademicas',
             'faltasDisciplinarias',
             'planesAbiertos',

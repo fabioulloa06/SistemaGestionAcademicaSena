@@ -294,15 +294,36 @@ class User extends Authenticatable
     }
 
     /**
-     * ¿Puede gestionar asistencias de un grupo específico? (instructor solo los asignados)
+     * Verifica si el usuario es instructor líder de un grupo específico
+     */
+    public function isInstructorLiderOfGroup($groupId): bool
+    {
+        if (!$this->isInstructor()) {
+            return false;
+        }
+
+        $group = \App\Models\Group::find($groupId);
+        return $group && $group->instructor_lider_id == $this->id;
+    }
+
+    /**
+     * ¿Puede gestionar asistencias de un grupo específico? 
+     * (instructor líder ve todas las competencias, otros instructores solo las asignadas)
+     * Coordinador NO puede gestionar, solo ver
      */
     public function canManageAttendanceForGroup($groupId): bool
     {
-        if ($this->isAdmin() || $this->isCoordinator()) {
+        if ($this->isAdmin()) {
             return true;
         }
 
         if ($this->isInstructor()) {
+            // Si es instructor líder, puede gestionar todas las competencias de su ficha
+            if ($this->isInstructorLiderOfGroup($groupId)) {
+                return true;
+            }
+            
+            // Si no es líder, solo puede gestionar si tiene competencias asignadas
             return \App\Models\CompetenciaGroupInstructor::where('instructor_id', $this->id)
                 ->where('group_id', $groupId)
                 ->exists();
@@ -329,10 +350,11 @@ class User extends Authenticatable
 
     /**
      * ¿Puede crear llamado de atención para un estudiante específico? (instructor solo de sus grupos)
+     * Coordinador NO puede crear, solo ver y revisar
      */
     public function canCreateDisciplinaryActionForStudent($studentId): bool
     {
-        if ($this->isAdmin() || $this->isCoordinator()) {
+        if ($this->isAdmin()) {
             return true;
         }
 
@@ -367,7 +389,8 @@ class User extends Authenticatable
     }
 
     /**
-     * Obtiene los grupos a los que tiene acceso (para instructores solo los asignados)
+     * Obtiene los grupos a los que tiene acceso
+     * Para instructores: grupos donde es líder + grupos con competencias asignadas
      * Cachea el resultado para evitar consultas repetidas
      */
     public function getAccessibleGroupIds()
@@ -378,9 +401,18 @@ class User extends Authenticatable
             }
 
             if ($this->isInstructor()) {
-                return \App\Models\CompetenciaGroupInstructor::where('instructor_id', $this->id)
+                // Grupos donde es instructor líder
+                $groupsAsLeader = \App\Models\Group::where('instructor_lider_id', $this->id)
+                    ->where('activo', true)
+                    ->pluck('id');
+                
+                // Grupos con competencias asignadas
+                $groupsWithCompetencias = \App\Models\CompetenciaGroupInstructor::where('instructor_id', $this->id)
                     ->distinct()
                     ->pluck('group_id');
+                
+                // Combinar y eliminar duplicados
+                return $groupsAsLeader->merge($groupsWithCompetencias)->unique()->values();
             }
 
             if ($this->isStudent()) {

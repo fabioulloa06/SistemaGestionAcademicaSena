@@ -36,11 +36,6 @@ class ProgramController extends Controller
     {
         $user = auth()->user();
         
-        // Coordinador solo puede ver, no crear
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para crear programas. Tu rol es de revisión y vigilancia.');
-        }
-        
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para crear programas.');
         }
@@ -54,11 +49,6 @@ class ProgramController extends Controller
     public function store(Request $request)
     {
         $user = auth()->user();
-        
-        // Coordinador solo puede ver, no crear
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para crear programas. Tu rol es de revisión y vigilancia.');
-        }
         
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para crear programas.');
@@ -84,7 +74,7 @@ class ProgramController extends Controller
      */
     public function show(string $id)
     {
-        $program = \App\Models\Program::with('groups')->findOrFail($id);
+        $program = \App\Models\Program::with(['groups', 'competencias'])->findOrFail($id);
         return view('programs.show', compact('program'));
     }
 
@@ -94,11 +84,6 @@ class ProgramController extends Controller
     public function edit(string $id)
     {
         $user = auth()->user();
-        
-        // Coordinador solo puede ver, no editar
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para editar programas. Tu rol es de revisión y vigilancia.');
-        }
         
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para editar programas.');
@@ -114,11 +99,6 @@ class ProgramController extends Controller
     public function update(Request $request, string $id)
     {
         $user = auth()->user();
-        
-        // Coordinador solo puede ver, no editar
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para editar programas. Tu rol es de revisión y vigilancia.');
-        }
         
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para editar programas.');

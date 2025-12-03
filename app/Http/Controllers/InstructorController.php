@@ -113,7 +113,7 @@ class InstructorController extends Controller
         // Check if instructor has attendances
         if ($instructor->attendances()->exists()) {
             return redirect()->route('instructors.index')
-                ->with('error', 'No se puede eliminar el instructor porque tiene asistencias registradas.');
+                ->with('error', 'No se puede eliminar el instructor porque tiene inasistencias registradas.');
         }
 
         $instructor->delete();

@@ -7,6 +7,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AprendizController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\DisciplinaryActionController;
+use App\Http\Controllers\AdministrativeProcedureController;
+use App\Http\Controllers\StudentDischargeController;
+use App\Http\Controllers\AdministrativeActController;
+use App\Http\Controllers\AppealController;
+use App\Http\Controllers\ConductCertificateController;
 use App\Http\Controllers\ImprovementPlanController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\GroupController;
@@ -21,6 +26,8 @@ use App\Http\Controllers\StudentPortalController;
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\CoordinatorDashboardController;
 use App\Http\Controllers\InstructorDashboardController;
+use App\Http\Controllers\CoordinatorController;
+use App\Http\Controllers\MaintenanceController;
 
 // Ruta raíz - Redirige según autenticación
 Route::get('/', function () {
@@ -42,14 +49,23 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// Gestión de Modo Mantenimiento (solo admin, debe estar antes del middleware de mantenimiento)
+Route::middleware(['auth', 'permission:view-audit'])->group(function () {
+    Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
+    Route::post('/maintenance/enable', [MaintenanceController::class, 'enable'])->name('maintenance.enable');
+    Route::post('/maintenance/disable', [MaintenanceController::class, 'disable'])->name('maintenance.disable');
+    Route::get('/maintenance/status', [MaintenanceController::class, 'status'])->name('maintenance.status');
+});
+
 // Rutas de autenticación (solo login, sin registro público)
-Route::middleware('guest')->group(function () {
+// El middleware de mantenimiento permite acceso al login
+Route::middleware(['guest', \App\Http\Middleware\MaintenanceMode::class])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
 });
 
 // Rutas protegidas
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\MaintenanceMode::class])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
     // Dashboards específicos por rol
@@ -61,6 +77,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/aprendices', [AprendizController::class, 'index'])->name('aprendices.index');
     Route::get('/aprendices/create', [AprendizController::class, 'create'])->name('aprendices.create');
     Route::post('/aprendices', [AprendizController::class, 'store'])->name('aprendices.store');
+    
+    // Gestión de Coordinadores Académicos (solo admin)
+    Route::middleware('permission:manage-users')->group(function () {
+        Route::resource('coordinators', CoordinatorController::class);
+    });
     
     // Gestión de Programas, Grupos, Estudiantes, Instructores, Competencias (solo admin y coordinador)
     Route::middleware('permission:manage-academic-structure')->group(function () {
@@ -121,6 +142,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:manage-attendance')->group(function () {
         Route::get('/attendance-lists/create', [AttendanceController::class, 'bulkCreate'])->name('attendance-lists.create');
         Route::post('/attendance-lists', [AttendanceController::class, 'bulkStore'])->name('attendance-lists.store');
+        Route::get('/attendance-lists/learning-outcomes', [AttendanceController::class, 'getLearningOutcomes'])->name('attendance-lists.learning-outcomes');
         Route::get('/attendance-lists/{attendance_list}', [AttendanceController::class, 'show'])->name('attendance-lists.show');
         Route::get('/attendance-lists/{attendance_list}/edit', [AttendanceController::class, 'edit'])->name('attendance-lists.edit');
         Route::put('/attendance-lists/{attendance_list}', [AttendanceController::class, 'update'])->name('attendance-lists.update');
@@ -135,6 +157,42 @@ Route::middleware('auth')->group(function () {
     Route::get('/students/{student}/disciplinary-actions/create', [DisciplinaryActionController::class, 'create'])->name('students.disciplinary_actions.create');
     Route::post('/students/{student}/disciplinary-actions', [DisciplinaryActionController::class, 'store'])->name('students.disciplinary_actions.store');
     
+    // Procedimientos Administrativos Sancionatorios (Acuerdo 009 de 2024)
+    Route::get('/administrative-procedures', [AdministrativeProcedureController::class, 'index'])->name('administrative-procedures.index');
+    Route::get('/disciplinary-actions/{disciplinary_action}/administrative-procedures/create', [AdministrativeProcedureController::class, 'create'])->name('administrative-procedures.create');
+    Route::post('/disciplinary-actions/{disciplinary_action}/administrative-procedures', [AdministrativeProcedureController::class, 'store'])->name('administrative-procedures.store');
+    Route::get('/administrative-procedures/{administrative_procedure}', [AdministrativeProcedureController::class, 'show'])->name('administrative-procedures.show');
+    Route::post('/administrative-procedures/{administrative_procedure}/start-investigation', [AdministrativeProcedureController::class, 'startInvestigation'])->name('administrative-procedures.start-investigation');
+    Route::post('/administrative-procedures/{administrative_procedure}/send-to-committee', [AdministrativeProcedureController::class, 'sendToCommittee'])->name('administrative-procedures.send-to-committee');
+    
+    // Descargos del Aprendiz
+    Route::get('/disciplinary-actions/{disciplinary_action}/student-discharges/create', [StudentDischargeController::class, 'create'])->name('student-discharges.create');
+    Route::post('/disciplinary-actions/{disciplinary_action}/student-discharges', [StudentDischargeController::class, 'store'])->name('student-discharges.store');
+    Route::get('/student-discharges/{student_discharge}', [StudentDischargeController::class, 'show'])->name('student-discharges.show');
+    Route::post('/student-discharges/{student_discharge}/request-extension', [StudentDischargeController::class, 'requestExtension'])->name('student-discharges.request-extension');
+    Route::post('/student-discharges/{student_discharge}/review', [StudentDischargeController::class, 'review'])->name('student-discharges.review');
+    
+    // Actos Administrativos Sancionatorios
+    Route::get('/administrative-acts', [AdministrativeActController::class, 'index'])->name('administrative-acts.index');
+    Route::get('/administrative-procedures/{administrative_procedure}/administrative-acts/create', [AdministrativeActController::class, 'create'])->name('administrative-acts.create');
+    Route::post('/administrative-procedures/{administrative_procedure}/administrative-acts', [AdministrativeActController::class, 'store'])->name('administrative-acts.store');
+    Route::get('/administrative-acts/{administrative_act}', [AdministrativeActController::class, 'show'])->name('administrative-acts.show');
+    Route::post('/administrative-acts/{administrative_act}/notify', [AdministrativeActController::class, 'notify'])->name('administrative-acts.notify');
+    Route::post('/administrative-acts/{administrative_act}/mark-as-firm', [AdministrativeActController::class, 'markAsFirm'])->name('administrative-acts.mark-as-firm');
+    Route::get('/administrative-acts/{administrative_act}/print', [AdministrativeActController::class, 'print'])->name('administrative-acts.print');
+    
+    // Recursos (Reposición y Apelación)
+    Route::get('/appeals', [AppealController::class, 'index'])->name('appeals.index');
+    Route::get('/administrative-acts/{administrative_act}/appeals/create', [AppealController::class, 'create'])->name('appeals.create');
+    Route::post('/administrative-acts/{administrative_act}/appeals', [AppealController::class, 'store'])->name('appeals.store');
+    Route::get('/appeals/{appeal}', [AppealController::class, 'show'])->name('appeals.show');
+    Route::post('/appeals/{appeal}/resolve', [AppealController::class, 'resolve'])->name('appeals.resolve');
+    Route::post('/appeals/{appeal}/withdraw', [AppealController::class, 'withdraw'])->name('appeals.withdraw');
+    
+    // Certificación de Conducta (Artículo 52º Acuerdo 009 de 2024)
+    Route::get('/students/{student}/conduct-certificate', [ConductCertificateController::class, 'generate'])->name('conduct-certificates.generate');
+    Route::get('/students/{student}/conduct-certificate/print', [ConductCertificateController::class, 'print'])->name('conduct-certificates.print');
+    
     // Planes de Mejoramiento
     Route::get('/improvement-plans', [ImprovementPlanController::class, 'index'])->name('improvement-plans.index');
     Route::get('/improvement-plans/create', [ImprovementPlanController::class, 'create'])->name('improvement-plans.create');
@@ -148,6 +206,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:view-reports')->group(function () {
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/absences', [ReportController::class, 'absences'])->name('reports.absences');
+        Route::get('/reports/absences/export', [ReportController::class, 'exportAbsences'])->name('reports.absences.export');
     });
     
     // Auditoría (solo admin)

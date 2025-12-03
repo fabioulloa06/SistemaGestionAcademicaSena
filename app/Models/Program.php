@@ -29,6 +29,7 @@ class Program extends Model
 
     public function competencias()
     {
-        return $this->hasMany(Competencia::class);
+        // Competencia usa program_id como foreign key
+        return $this->hasMany(Competencia::class, 'program_id', 'id');
     }
 }

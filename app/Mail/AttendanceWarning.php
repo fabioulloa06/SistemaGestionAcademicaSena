@@ -31,7 +31,7 @@ class AttendanceWarning extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Alerta de Asistencia - SENA',
+            subject: 'Alerta de Inasistencias - SENA',
         );
     }
 

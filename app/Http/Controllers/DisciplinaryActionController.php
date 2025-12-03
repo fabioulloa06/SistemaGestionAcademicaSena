@@ -141,15 +141,39 @@ class DisciplinaryActionController extends Controller
              return back()->withErrors(['disciplinary_fault_id' => 'Para faltas disciplinarias debe seleccionar el Literal infringido.']);
         }
 
+        // Agregar información del creador
+        $validated['created_by'] = $user->id;
+        $validated['estado_procedimiento'] = 'inicial';
+        
         $action = $student->disciplinary_actions()->create($validated);
+
+        // Si requiere procedimiento administrativo según Acuerdo 009 de 2024
+        if ($action->requiereProcedimientoAdministrativo()) {
+            // Iniciar procedimiento administrativo sancionatorio
+            \App\Models\AdministrativeProcedure::create([
+                'disciplinary_action_id' => $action->id,
+                'student_id' => $student->id,
+                'tipo_falta' => $action->tipo_falta,
+                'estado' => 'iniciado',
+                'iniciado_por' => $user->id,
+                'fecha_inicio' => now(),
+            ]);
+            
+            $action->update(['estado_procedimiento' => 'en_investigacion']);
+        }
 
         // Enviar Correo
         if ($student->user) {
             \Illuminate\Support\Facades\Mail::to($student->user->email)->send(new \App\Mail\DisciplinarySanction($student, $action));
         }
 
+        $message = 'Llamado de atención registrado correctamente.';
+        if ($action->requiereProcedimientoAdministrativo()) {
+            $message .= ' Se ha iniciado el procedimiento administrativo sancionatorio según el Acuerdo 009 de 2024.';
+        }
+
         return redirect()->route('students.disciplinary_actions.index', $student)
-            ->with('success', 'Llamado de atención registrado correctamente.');
+            ->with('success', $message);
     }
 
     public function edit(DisciplinaryAction $disciplinaryAction)

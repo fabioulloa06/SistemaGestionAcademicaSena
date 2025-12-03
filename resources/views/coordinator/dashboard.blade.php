@@ -82,14 +82,14 @@
 </div>
 
 <!-- Sección de Acciones Rápidas -->
-<div class="rounded-xl shadow-lg p-6 mb-6 text-white" style="background: linear-gradient(135deg, #238276 0%, #1a6b60 100%);">
+<div class="rounded-xl shadow-lg p-6 mb-6 text-white" style="background: linear-gradient(135deg, #4d8e37 0%, #3d7230 100%);">
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
             <h3 class="text-xl font-bold mb-2">Acciones de Revisión</h3>
             <p class="text-white/90 text-sm">Revisa y vigila los llamados de atención del sistema</p>
         </div>
         <div class="flex flex-wrap gap-3">
-            <a href="{{ route('disciplinary-actions.global-index') }}" class="px-6 py-3 bg-white rounded-lg font-semibold transition-colors shadow-md" style="color: #238276;" onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='white'">
+            <a href="{{ route('disciplinary-actions.global-index') }}" class="px-6 py-3 bg-white rounded-lg font-semibold transition-colors shadow-md" style="color: #4d8e37;" onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='white'">
                 📋 Ver Todos los Llamados
             </a>
             <a href="{{ route('reports.index') }}" class="px-6 py-3 bg-white/10 backdrop-blur-sm text-white rounded-lg font-semibold hover:bg-white/20 transition-colors border border-white/20">

@@ -10,7 +10,7 @@
         Bienvenido, {{ Auth::user()->name }}! 👋
     </h1>
     <p class="text-gray-600">
-        Panel del Instructor - Gestión de Asistencias y Llamados de Atención
+        Panel del Instructor - Gestión de Inasistencias y Llamados de Atención
     </p>
 </div>
 
@@ -32,16 +32,16 @@
         </div>
     </div>
 
-    <!-- Card 2: Asistencias -->
+    <!-- Card 2: Inasistencias -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm font-medium text-gray-600">Asistencias</p>
-                <p class="text-3xl font-bold text-green-600 mt-2">{{ number_format($totalAsistencias ?? 0) }}</p>
+                <p class="text-sm font-medium text-gray-600">Inasistencias</p>
+                <p class="text-3xl font-bold text-red-600 mt-2">{{ number_format($totalInasistencias ?? 0) }}</p>
                 <p class="text-xs text-gray-500 mt-1">Este mes</p>
             </div>
-            <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
-                <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-14 h-14 bg-red-100 rounded-xl flex items-center justify-center">
+                <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
             </div>
@@ -82,15 +82,15 @@
 </div>
 
 <!-- Sección de Acciones Rápidas -->
-<div class="rounded-xl shadow-lg p-6 mb-6 text-white" style="background: linear-gradient(135deg, #238276 0%, #1a6b60 100%);">
+<div class="rounded-xl shadow-lg p-6 mb-6 text-white" style="background: linear-gradient(135deg, #4d8e37 0%, #3d7230 100%);">
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
             <h3 class="text-xl font-bold mb-2">Acciones Rápidas</h3>
             <p class="text-white/90 text-sm">Gestiona tus actividades diarias</p>
         </div>
         <div class="flex flex-wrap gap-3">
-            <a href="{{ route('attendance-lists.create') }}" class="px-6 py-3 bg-white rounded-lg font-semibold transition-colors shadow-md" style="color: #238276;" onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='white'">
-                📝 Tomar Asistencia
+            <a href="{{ route('attendance-lists.create') }}" class="px-6 py-3 bg-white rounded-lg font-semibold transition-colors shadow-md" style="color: #4d8e37;" onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='white'">
+                📝 Registrar Inasistencias
             </a>
             <a href="{{ route('disciplinary-actions.global-index') }}" class="px-6 py-3 bg-white/10 backdrop-blur-sm text-white rounded-lg font-semibold hover:bg-white/20 transition-colors border border-white/20">
                 ⚠️ Ver Llamados
@@ -142,9 +142,9 @@
     </div>
 </div>
 
-<!-- Últimas Asistencias -->
+<!-- Últimas Inasistencias -->
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-    <h3 class="text-lg font-semibold text-gray-900 mb-4">Últimas Asistencias Registradas</h3>
+    <h3 class="text-lg font-semibold text-gray-900 mb-4">Últimas Inasistencias Registradas</h3>
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
@@ -169,7 +169,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">No hay asistencias recientes</td>
+                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">No hay inasistencias recientes</td>
                 </tr>
                 @endforelse
             </tbody>

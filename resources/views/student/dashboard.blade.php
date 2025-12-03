@@ -14,28 +14,21 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <!-- Tarjeta Asistencia -->
+                <!-- Tarjeta Inasistencias -->
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                    <h4 class="text-lg font-semibold text-gray-700 mb-2">Mi Asistencia</h4>
+                    <h4 class="text-lg font-semibold text-gray-700 mb-2">Mis Inasistencias</h4>
                     <div class="flex items-center justify-between">
                         <div>
-                            <span class="text-3xl font-bold text-green-600">{{ $attendanceSummary['presente'] }}</span>
-                            <span class="text-sm text-gray-500 block">Asistencias</span>
+                            <span class="text-3xl font-bold text-red-600">{{ $absenceSummary['total_inasistencias'] ?? 0 }}</span>
+                            <span class="text-sm text-gray-500 block">Inasistencias</span>
                         </div>
                         <div>
-                            <span class="text-3xl font-bold text-red-600">{{ $attendanceSummary['ausente'] }}</span>
-                            <span class="text-sm text-gray-500 block">Fallas</span>
+                            <span class="text-3xl font-bold text-orange-600">{{ $absenceSummary['consecutivas'] ?? 0 }}</span>
+                            <span class="text-sm text-gray-500 block">Consecutivas</span>
                         </div>
                     </div>
                     <div class="mt-4">
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            @php
-                                $total = $attendanceSummary['total'] > 0 ? $attendanceSummary['total'] : 1;
-                                $percentage = ($attendanceSummary['presente'] / $total) * 100;
-                            @endphp
-                            <div class="bg-green-600 h-2.5 rounded-full" style="width: {{ $percentage }}%"></div>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-1">{{ number_format($percentage, 1) }}% de Asistencia</p>
+                        <p class="text-xs text-gray-500 mt-1">Total de inasistencias registradas</p>
                     </div>
                 </div>
 
@@ -97,9 +90,9 @@
             @endif
 
 
-            <!-- Últimas Asistencias -->
+            <!-- Últimas Inasistencias -->
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                <h4 class="text-lg font-semibold text-gray-700 mb-4">Últimos Registros de Asistencia</h4>
+                <h4 class="text-lg font-semibold text-gray-700 mb-4">Últimos Registros de Inasistencias</h4>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">

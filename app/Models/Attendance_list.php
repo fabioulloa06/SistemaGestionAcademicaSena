@@ -16,6 +16,7 @@ class Attendance_list extends Model
         'group_id',
         'instructor_id',
         'competencia_id',
+        'learning_outcome_id',
         'fecha',
         'estado',
         'observaciones',
@@ -43,5 +44,10 @@ class Attendance_list extends Model
     public function competencia()
     {
         return $this->belongsTo(Competencia::class);
+    }
+
+    public function learningOutcome()
+    {
+        return $this->belongsTo(LearningOutcome::class);
     }
 }

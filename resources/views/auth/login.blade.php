@@ -8,10 +8,10 @@
         <!-- Card de Login -->
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
             <!-- Header con colores SENA -->
-            <div class="px-8 py-6 text-white" style="background: linear-gradient(135deg, #238276 0%, #1a6b60 100%);">
+            <div class="px-8 py-6 text-white" style="background: linear-gradient(135deg, #4d8e37 0%, #3d7230 100%);">
                 <div class="flex items-center justify-center mb-4">
                     <div class="w-16 h-16 bg-white rounded-xl flex items-center justify-center shadow-lg">
-                        <span class="font-bold text-3xl" style="color: #238276;">S</span>
+                        <span class="font-bold text-3xl" style="color: #4d8e37;">S</span>
                     </div>
                 </div>
                 <h2 class="text-2xl font-bold text-center">Sistema de Gestión Académica</h2>
@@ -136,7 +136,7 @@
         <div class="mt-6 text-center">
             <p class="text-sm text-gray-600">
                 ¿Necesitas ayuda? 
-                <a href="#" class="font-medium hover:underline" style="color: #238276;">
+                <a href="#" class="font-medium hover:underline" style="color: #4d8e37;">
                     Contacta al administrador
                 </a>
             </p>

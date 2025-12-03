@@ -12,14 +12,13 @@ class Competencia extends Model
     use HasFactory;
 
     protected $table = 'competencias';
-    protected $primaryKey = 'id_competencia';
 
     protected $fillable = [
-        'codigo_competencia',
-        'nombre_competencia',
+        'codigo',
+        'nombre',
         'descripcion',
-        'id_programa',
-        'orden',
+        'program_id',
+        'activo',
     ];
 
     protected function casts(): array
@@ -30,14 +29,14 @@ class Competencia extends Model
         ];
     }
 
-    public function programa(): BelongsTo
+    public function program(): BelongsTo
     {
-        return $this->belongsTo(ProgramaFormacion::class, 'id_programa', 'id_programa');
+        return $this->belongsTo(Program::class, 'program_id', 'id');
     }
 
-    public function resultadosAprendizaje(): HasMany
+    public function learningOutcomes(): HasMany
     {
-        return $this->hasMany(ResultadoAprendizaje::class, 'id_competencia', 'id_competencia');
+        return $this->hasMany(LearningOutcome::class, 'competencia_id', 'id');
     }
 }
 

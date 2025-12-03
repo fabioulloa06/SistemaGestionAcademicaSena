@@ -40,26 +40,46 @@ class InstructorDashboardController extends Controller
             ->distinct()
             ->pluck('competencia_id');
         
-        $competencias = \App\Models\Competencia::whereIn('id_competencia', $competenciaIds)
-            ->select('id_competencia', 'codigo_competencia', 'nombre_competencia', 'descripcion')
+        $competencias = \App\Models\Competencia::whereIn('id', $competenciaIds)
+            ->select('id', 'codigo', 'nombre', 'descripcion')
             ->get();
         
         // Total de estudiantes en sus grupos - Optimizado
         $totalStudents = Student::whereIn('group_id', $groupIds)->count();
         
-        // Asistencias del mes (de sus grupos)
-        $attendanceStats = Attendance_list::whereBetween('fecha', [$startOfMonth, $now])
+        // INASISTENCIAS del mes (solo se registran inasistencias)
+        $totalInasistencias = Attendance_list::whereBetween('fecha', [$startOfMonth, $now])
+            ->where('estado', 'ausente')
             ->whereHas('student', function($q) use ($groupIds) {
                 $q->whereIn('group_id', $groupIds);
             })
-            ->selectRaw('estado, COUNT(*) as count')
-            ->groupBy('estado')
-            ->pluck('count', 'estado')
-            ->toArray();
+            ->count();
         
-        $totalAsistencias = $attendanceStats['presente'] ?? 0;
-        $totalFallas = $attendanceStats['ausente'] ?? 0;
-        $totalTardanzas = $attendanceStats['tarde'] ?? 0;
+        // Inasistencias consecutivas (2 o más días seguidos)
+        $consecutiveAbsences = Attendance_list::whereBetween('fecha', [$startOfMonth, $now])
+            ->where('estado', 'ausente')
+            ->whereHas('student', function($q) use ($groupIds) {
+                $q->whereIn('group_id', $groupIds);
+            })
+            ->selectRaw('student_id, competencia_id, COUNT(*) as consecutive_count')
+            ->groupBy('student_id', 'competencia_id')
+            ->havingRaw('consecutive_count >= 2')
+            ->count();
+        
+        // Inasistencias totales por competencia (4 o más)
+        $totalAbsencesByCompetence = Attendance_list::whereBetween('fecha', [$startOfMonth, $now])
+            ->where('estado', 'ausente')
+            ->whereHas('student', function($q) use ($groupIds) {
+                $q->whereIn('group_id', $groupIds);
+            })
+            ->selectRaw('student_id, competencia_id, COUNT(*) as total_count')
+            ->groupBy('student_id', 'competencia_id')
+            ->havingRaw('total_count >= 4')
+            ->count();
+        
+        $totalFallas = $totalInasistencias;
+        $totalAsistencias = 0; // Ya no se cuenta asistencia
+        $totalTardanzas = 0; // Ya no se cuenta tardanza
         
         // Llamados de atención creados por este instructor (este mes)
         $llamadosCreados = DisciplinaryAction::whereBetween('date', [$startOfMonth, $now])
@@ -83,15 +103,16 @@ class InstructorDashboardController extends Controller
             })
             ->count();
         
-        // Últimas asistencias registradas - Optimizado
-        $ultimasAsistencias = Attendance_list::whereHas('student', function($q) use ($groupIds) {
-            $q->whereIn('group_id', $groupIds);
-        })
-        ->with(['student:id,nombre,group_id', 'student.group:id,numero_ficha', 'competencia:id,nombre'])
-        ->select('id', 'student_id', 'fecha', 'estado', 'competencia_id', 'observaciones')
-        ->orderBy('fecha', 'desc')
-        ->limit(5)
-        ->get();
+        // Últimas inasistencias registradas - Optimizado
+        $ultimasAsistencias = Attendance_list::where('estado', 'ausente')
+            ->whereHas('student', function($q) use ($groupIds) {
+                $q->whereIn('group_id', $groupIds);
+            })
+            ->with(['student:id,nombre,group_id', 'student.group:id,numero_ficha', 'competencia:id,nombre'])
+            ->select('id', 'student_id', 'fecha', 'estado', 'competencia_id', 'observaciones')
+            ->orderBy('fecha', 'desc')
+            ->limit(5)
+            ->get();
         
         // Últimos llamados de atención - Optimizado
         $ultimosLlamados = DisciplinaryAction::whereHas('student', function($q) use ($groupIds) {
@@ -107,9 +128,10 @@ class InstructorDashboardController extends Controller
             'groups',
             'competencias',
             'totalStudents',
-            'totalAsistencias',
+            'totalInasistencias',
+            'consecutiveAbsences',
+            'totalAbsencesByCompetence',
             'totalFallas',
-            'totalTardanzas',
             'llamadosCreados',
             'llamadosAcademicos',
             'llamadosDisciplinarios',

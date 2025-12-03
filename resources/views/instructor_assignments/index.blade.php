@@ -9,11 +9,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            @if(session('success'))
-                <div class="alert alert-success mb-4">
-                    {{ session('success') }}
-                </div>
-            @endif
+{{-- Las alertas se manejan con SweetAlert2 en el layout principal --}}
 
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
                 <h3 class="text-lg font-semibold mb-4">Seleccione un Grupo para Asignar Instructores</h3>

@@ -18,11 +18,6 @@ class CompetenciaController extends Controller
     {
         $user = auth()->user();
         
-        // Coordinador solo puede ver, no crear
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para crear competencias. Tu rol es de revisión y vigilancia.');
-        }
-        
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para crear competencias.');
         }
@@ -33,11 +28,6 @@ class CompetenciaController extends Controller
     public function store(Request $request, Program $program)
     {
         $user = auth()->user();
-        
-        // Coordinador solo puede ver, no crear
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para crear competencias. Tu rol es de revisión y vigilancia.');
-        }
         
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para crear competencias.');
@@ -66,11 +56,6 @@ class CompetenciaController extends Controller
     {
         $user = auth()->user();
         
-        // Coordinador solo puede ver, no editar
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para editar competencias. Tu rol es de revisión y vigilancia.');
-        }
-        
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para editar competencias.');
         }
@@ -81,11 +66,6 @@ class CompetenciaController extends Controller
     public function update(Request $request, Competencia $competencia)
     {
         $user = auth()->user();
-        
-        // Coordinador solo puede ver, no actualizar
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para actualizar competencias. Tu rol es de revisión y vigilancia.');
-        }
         
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para actualizar competencias.');
@@ -108,11 +88,6 @@ class CompetenciaController extends Controller
     {
         $user = auth()->user();
         
-        // Coordinador solo puede ver, no eliminar
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para eliminar competencias. Tu rol es de revisión y vigilancia.');
-        }
-        
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para eliminar competencias.');
         }
@@ -132,11 +107,6 @@ class CompetenciaController extends Controller
     {
         $user = auth()->user();
         
-        // Coordinador solo puede ver, no asignar
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para asignar instructores. Tu rol es de revisión y vigilancia.');
-        }
-        
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para asignar instructores.');
         }
@@ -150,11 +120,6 @@ class CompetenciaController extends Controller
     public function storeInstructors(Request $request, Competencia $competencia)
     {
         $user = auth()->user();
-        
-        // Coordinador solo puede ver, no asignar
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para asignar instructores. Tu rol es de revisión y vigilancia.');
-        }
         
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para asignar instructores.');

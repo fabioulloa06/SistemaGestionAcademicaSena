@@ -16,7 +16,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            TestUsersSeeder::class,
             InstructorLiderSeeder::class,
+            TecnologiaADSSeeder::class, // Programa Tecnología en Análisis y Desarrollo de Software
         ]);
     }
 }
