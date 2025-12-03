@@ -3,7 +3,7 @@ chcp 65001 >nul
 echo.
 echo ========================================
 echo   Iniciando Proyecto Local
-echo   Sistema de Gestión Académica SENA
+echo   Sistema de Gestion Academica SENA
 echo ========================================
 echo.
 
@@ -13,9 +13,9 @@ if not exist ".env" (
     echo [INFO] Creando archivo .env desde .env.example...
     if exist ".env.example" (
         copy /Y .env.example .env >nul
-        echo [INFO] Archivo .env creado. Ejecuta 'php artisan key:generate' si es necesario.
+        echo [INFO] Archivo .env creado. Ejecuta php artisan key:generate si es necesario.
     ) else (
-        echo [ERROR] No se encontró .env.example. Por favor, crea el archivo .env manualmente.
+        echo [ERROR] No se encontro .env.example. Por favor, crea el archivo .env manualmente.
         pause
         exit /b 1
     )
@@ -23,7 +23,7 @@ if not exist ".env" (
 
 REM Verificar que existen las dependencias de Composer
 if not exist "vendor\autoload.php" (
-    echo [INFO] Las dependencias de Composer no están instaladas.
+    echo [INFO] Las dependencias de Composer no estan instaladas.
     echo [INFO] Instalando dependencias de Composer...
     if exist "composer.phar" (
         php composer.phar install
@@ -39,7 +39,7 @@ if not exist "vendor\autoload.php" (
 
 REM Verificar que existen las dependencias de npm
 if not exist "node_modules" (
-    echo [INFO] Las dependencias de npm no están instaladas.
+    echo [INFO] Las dependencias de npm no estan instaladas.
     echo [INFO] Instalando dependencias de npm...
     call npm install
     if errorlevel 1 (
@@ -64,7 +64,7 @@ REM Iniciar Vite en modo desarrollo (para hot-reload)
 echo [INFO] Iniciando Vite Dev Server (puerto 5173)...
 start "Vite Dev Server" cmd /k "npm run dev"
 
-REM Esperar un poco más para que ambos servidores estén listos
+REM Esperar un poco mas para que ambos servidores esten listos
 timeout /t 3 /nobreak >nul
 
 echo.
@@ -77,7 +77,7 @@ echo   Laravel: http://localhost:8000
 echo   Vite Dev: http://localhost:5173
 echo.
 
-REM Abrir el navegador automáticamente
+REM Abrir el navegador automaticamente
 echo [INFO] Abriendo navegador en http://localhost:8000...
 timeout /t 2 /nobreak >nul
 start http://localhost:8000
@@ -88,7 +88,6 @@ echo   Sistema listo para usar
 echo ========================================
 echo.
 echo Presiona cualquier tecla para cerrar esta ventana...
-echo (Los servidores seguirán corriendo en sus ventanas)
+echo (Los servidores seguiran corriendo en sus ventanas)
 echo.
 pause >nul
-
