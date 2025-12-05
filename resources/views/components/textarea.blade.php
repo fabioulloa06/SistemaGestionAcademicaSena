@@ -22,7 +22,7 @@
         name="{{ $name }}"
         id="{{ $name }}"
         rows="{{ $rows }}"
-        {{ $attributes->merge(['class' => 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-offset-0 transition-colors resize-none' . ($error ? ' border-red-500 focus:border-red-500 focus:ring-red-500' : ' focus:border-[#238276] focus:ring-[#238276]')]) }}
+        {{ $attributes->merge(['class' => 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-offset-0 transition-colors resize-none' . ($error ? ' border-red-500 focus:border-red-500 focus:ring-red-500' : ' focus:border-[#4d8e37] focus:ring-[#4d8e37]')]) }}
         @if($required) required @endif
     >{{ old($name, $value) }}</textarea>
 

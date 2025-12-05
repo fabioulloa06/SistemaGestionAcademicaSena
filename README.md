@@ -1,157 +1,99 @@
-# Sistema de Gestión Académica SENA
+# 🎓 Sistema de Gestión Académica SENA
 
-Sistema web para la gestión académica del Servicio Nacional de Aprendizaje (SENA), desarrollado con Laravel 12.
-
-## 📚 Documentación
-
-- **[Guía de Instalación](GUIA_INSTALACION.md)** - Todo lo que necesitas saber para instalar y configurar el proyecto
-- **[Guía de Trabajo con Git](GUIA_TRABAJO_GIT.md)** - Cómo trabajar con Git en este proyecto
-- **[Estado del Proyecto](ESTADO_PROYECTO.md)** - Qué está completado y qué falta por hacer
-
-## 🚀 Inicio Rápido
-
-### Requisitos Previos
-
-- PHP 8.2 o superior
-- Composer
-- Node.js y npm
-- MySQL
-- XAMPP (recomendado para Windows)
-
-### Instalación
-
-1. **Clonar el repositorio:**
-   ```bash
-   cd C:\xampp\htdocs
-   git clone https://github.com/fabioulloa06/SistemaGestionAcademicaSena.git
-   cd SistemaGestionAcademicaSena
-   ```
-
-2. **Instalar dependencias:**
-   ```bash
-   composer install
-   npm install
-   ```
-
-3. **Configurar el proyecto:**
-   - Copiar `.env.example` a `.env` (o crear `.env` manualmente)
-   - Configurar las credenciales de la base de datos en `.env`
-   - Ejecutar `php artisan key:generate`
-
-4. **Configurar la base de datos:**
-   - Crear la base de datos `sena_db` en MySQL
-   - Importar `database/sql/sena_database.sql` o ejecutar `php artisan migrate`
-   - Ejecutar `php artisan db:seed` para datos iniciales
-
-5. **Compilar assets:**
-   ```bash
-   npm run build
-   ```
-
-6. **Iniciar servidores:**
-   ```bash
-   start.bat
-   ```
-   O manualmente:
-   ```bash
-   php artisan serve    # Terminal 1
-   npm run dev          # Terminal 2
-   ```
-
-7. **Acceder a la aplicación:**
-   - Abre tu navegador en: `http://localhost:8000`
-   - Credenciales por defecto:
-     - Email: `admin@admin.com`
-     - Contraseña: `fabio123`
-
-**📖 Para más detalles, consulta la [Guía de Instalación Completa](GUIA_INSTALACION.md)**
-
-## 🛠️ Tecnologías Utilizadas
-
-- **Backend:** Laravel 12
-- **Frontend:** Blade Templates, Tailwind CSS
-- **Base de Datos:** MySQL
-- **Build Tool:** Vite
-- **Gestión de Dependencias:** Composer, npm
-
-## 👥 Roles del Sistema
-
-- **Coordinador:** Gestiona programas, crea fichas, asigna instructores
-- **Instructor Líder:** Responsable de una ficha, coordina instructores
-- **Instructor:** Dicta RA, registra asistencias, califica evidencias
-- **Aprendiz:** Matriculado en ficha, entrega evidencias, ve calificaciones
-
-## 📋 Funcionalidades Principales
-
-- ✅ Autenticación de usuarios
-- ✅ Gestión de aprendices (registro por instructor líder)
-- ✅ Dashboard personalizado por rol
-- 🔄 Gestión de fichas y programas de formación
-- 🔄 Registro de asistencias
-- 🔄 Gestión de evidencias y calificaciones
-- 🔄 Sistema de llamados de atención y sanciones
-- 🔄 Planes de mejoramiento
-
-## 📝 Estructura del Proyecto
-
-```
-SistemaGestionAcademicaSena/
-├── app/
-│   ├── Http/
-│   │   ├── Controllers/     # Controladores
-│   │   └── Middleware/      # Middleware personalizado
-│   ├── Models/             # Modelos Eloquent
-│   └── Helpers/            # Funciones auxiliares
-├── database/
-│   ├── migrations/         # Migraciones de base de datos
-│   ├── seeders/           # Seeders para datos iniciales
-│   └── sql/               # Scripts SQL
-├── resources/
-│   ├── views/             # Vistas Blade
-│   └── css/               # Estilos CSS
-├── routes/
-│   └── web.php            # Rutas web
-└── public/                # Archivos públicos
-```
-
-## 🔧 Comandos Útiles
-
-```bash
-# Iniciar servidor de desarrollo
-php artisan serve
-
-# Compilar assets para producción
-npm run build
-
-# Compilar assets en modo desarrollo
-npm run dev
-
-# Ejecutar migraciones
-php artisan migrate
-
-# Ejecutar seeders
-php artisan db:seed
-
-# Limpiar caché
-php artisan cache:clear
-php artisan config:clear
-php artisan view:clear
-```
-
-## 📖 Guías Disponibles
-
-- **[GUIA_INSTALACION.md](GUIA_INSTALACION.md)** - Instalación paso a paso
-- **[GUIA_TRABAJO_GIT.md](GUIA_TRABAJO_GIT.md)** - Flujo de trabajo con Git
-- **[ESTADO_PROYECTO.md](ESTADO_PROYECTO.md)** - Estado actual del desarrollo
-
-## 🤝 Contribuir
-
-Para contribuir al proyecto, sigue el flujo de trabajo descrito en [GUIA_TRABAJO_GIT.md](GUIA_TRABAJO_GIT.md).
-
-## 📄 Licencia
-
-Este proyecto es de uso interno para el SENA.
+Sistema completo de gestión académica para el SENA, incluyendo control de asistencias, calificaciones, procesos disciplinarios y procedimientos administrativos según el Acuerdo 009 de 2024.
 
 ---
 
-**Desarrollado para el Servicio Nacional de Aprendizaje (SENA)**
+## 🚀 Inicio Rápido
+
+### ¿Cómo quieres ejecutarlo?
+
+#### 🐳 Con Docker (Recomendado - Sin XAMPP)
+```powershell
+.\setup-docker-sail.bat
+```
+Ver: `INSTALACION_SIN_XAMPP.md`
+
+#### 💻 Con XAMPP (Tradicional)
+```powershell
+.\setup-local.bat
+```
+Ver: `README_INSTALACION.md`
+
+#### ⚡ Con PHP Built-in + SQLite (Más Simple)
+```powershell
+.\setup-php-sqlite.bat
+```
+Ver: `INSTALACION_SIN_XAMPP.md`
+
+---
+
+## 📚 Documentación
+
+- **`QUICK_START.md`** - Inicio rápido en 5 minutos
+- **`README_INSTALACION.md`** - Guía completa de instalación con XAMPP
+- **`INSTALACION_SIN_XAMPP.md`** - Guía para ejecutar sin XAMPP (Docker, SQLite)
+- **`PARA_MIS_COMPANEROS.md`** - Guía para el equipo de pruebas
+- **`GUIA_DESPLIEGUE_INFINITY_FREE.md`** - Cómo desplegar en Infinity Free
+- **`SOLUCION_ERROR_DB.md`** - Solución de problemas de base de datos
+- **`SISTEMA_CORREOS.md`** - Documentación del sistema de correos
+
+---
+
+## 🔑 Credenciales de Prueba
+
+| Rol | Email | Password |
+|-----|-------|----------|
+| 👑 Admin | `admin@sena.edu.co` | `password123` |
+| 👤 Coordinador | `coordinador@sena.edu.co` | `password123` |
+| 👨‍🏫 Instructor | `instructor@sena.edu.co` | `password123` |
+| 👨‍🎓 Estudiante | `estudiante@sena.edu.co` | `password123` |
+
+---
+
+## ✨ Características Principales
+
+- ✅ **Gestión de Asistencias** - Registro de inasistencias con notificaciones automáticas
+- ✅ **Sistema Disciplinario** - Llamados de atención y procedimientos administrativos
+- ✅ **Gestión Académica** - Programas, competencias, resultados de aprendizaje
+- ✅ **Reportes y Estadísticas** - Dashboard con gráficos y métricas
+- ✅ **Notificaciones por Email** - Alertas automáticas según reglamento SENA
+- ✅ **Procedimientos Administrativos** - Flujo completo según Acuerdo 009 de 2024
+
+---
+
+## 🛠️ Tecnologías
+
+- **Backend:** Laravel 12
+- **Frontend:** Blade + Tailwind CSS
+- **Base de Datos:** MySQL / SQLite
+- **Docker:** Laravel Sail
+- **Gráficos:** Chart.js
+
+---
+
+## 📋 Requisitos
+
+- PHP 8.2+
+- Composer
+- MySQL 8.0+ (o SQLite)
+- Node.js 18+ (opcional, para assets)
+
+---
+
+## 🐛 Solución de Problemas
+
+- **Error de conexión a BD:** Ver `SOLUCION_ERROR_DB.md`
+- **Problemas con Docker:** Ver `INSTALACION_SIN_XAMPP.md`
+- **Emails no se envían:** Ver `SISTEMA_CORREOS.md`
+
+---
+
+## 📞 Soporte
+
+Para problemas o dudas, revisa la documentación en la carpeta raíz del proyecto.
+
+---
+
+**Desarrollado para el SENA** 🎓
+

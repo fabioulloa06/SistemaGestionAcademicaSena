@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class AdminUserSeeder extends Seeder
@@ -14,23 +13,23 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Crear o actualizar usuario administrador
-        User::updateOrCreate(
-            ['email' => 'admin@admin.com'],
-            [
-                'numero_documento' => '123456789',
-                'tipo_documento' => 'CC',
-                'nombres' => 'Administrador',
-                'apellidos' => 'Sistema',
-                'email' => 'admin@admin.com',
-                'password_hash' => Hash::make('fabio123'),
-                'rol' => 'coordinador',
-                'estado' => 'activo',
-            ]
-        );
+        // Crear usuario admin si no existe
+        $email = 'admin@sena.edu.co';
+        $admin = User::where('email', $email)->first();
         
-        $this->command->info('Usuario administrador creado exitosamente!');
-        $this->command->info('Email: admin@admin.com');
-        $this->command->info('Password: fabio123');
+        $userData = [
+            'name' => 'Administrador Sistema',
+            'email' => $email,
+            'password' => Hash::make('password123'),
+            'role' => 'admin',
+        ];
+
+        if (!$admin) {
+            User::create($userData);
+            $this->command->info('Usuario Admin creado: ' . $email . ' / password123');
+        } else {
+            $admin->update($userData);
+            $this->command->info('Usuario Admin actualizado: ' . $email . ' / password123');
+        }
     }
 }

@@ -12,7 +12,13 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'role' => \App\Http\Middleware\CheckRole::class,
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'permission' => \App\Http\Middleware\PermissionMiddleware::class,
+        ]);
+        
+        // Aplicar middleware de mantenimiento globalmente
+        $middleware->web(append: [
+            \App\Http\Middleware\MaintenanceMode::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

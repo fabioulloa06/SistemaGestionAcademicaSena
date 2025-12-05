@@ -8,7 +8,7 @@
     <!-- Card del formulario -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <!-- Header -->
-        <div class="px-6 py-4 text-white" style="background: linear-gradient(135deg, #238276 0%, #1a6b60 100%);">
+        <div class="px-6 py-4 text-white" style="background: linear-gradient(135deg, #4d8e37 0%, #3d7230 100%);">
             <div class="flex items-center justify-between">
                 <div>
                     <h2 class="text-xl font-bold text-white">Registrar Nuevo Aprendiz</h2>
