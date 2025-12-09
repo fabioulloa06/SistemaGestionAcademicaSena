@@ -39,11 +39,14 @@
                                    id="nombre" 
                                    value="{{ old('nombre') }}"
                                    required
+                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+                                   title="Solo se permiten letras y espacios"
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('nombre') border-red-500 @enderror"
                                    placeholder="Ej: Juan Carlos Pérez">
                             @error('nombre')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
+                            <p class="mt-1 text-xs text-gray-500">Solo letras y espacios</p>
                         </div>
 
                         <!-- Documento -->
@@ -51,16 +54,18 @@
                             <label for="documento" class="block text-sm font-medium text-gray-700 mb-2">
                                 Documento de Identidad <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" 
+                            <input type="number" 
                                    name="documento" 
                                    id="documento" 
                                    value="{{ old('documento') }}"
                                    required
+                                   min="0"
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('documento') border-red-500 @enderror"
                                    placeholder="Ej: 1234567890">
                             @error('documento')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
+                            <p class="mt-1 text-xs text-gray-500">Solo números</p>
                         </div>
 
                         <!-- Email -->
@@ -85,15 +90,17 @@
                             <label for="telefono" class="block text-sm font-medium text-gray-700 mb-2">
                                 Teléfono <span class="text-gray-500 text-xs">(Opcional)</span>
                             </label>
-                            <input type="text" 
+                            <input type="number" 
                                    name="telefono" 
                                    id="telefono" 
                                    value="{{ old('telefono') }}"
+                                   min="0"
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('telefono') border-red-500 @enderror"
                                    placeholder="Ej: 3001234567">
                             @error('telefono')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
+                            <p class="mt-1 text-xs text-gray-500">Solo números</p>
                         </div>
 
                         <!-- Especialidad -->

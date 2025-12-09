@@ -181,6 +181,7 @@
                                            name="fecha" 
                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500" 
                                            value="{{ date('Y-m-d') }}" 
+                                           max="{{ date('Y-m-d') }}"
                                            required>
                                 </div>
                                 <div>
