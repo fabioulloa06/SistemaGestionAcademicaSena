@@ -40,8 +40,7 @@
                                    id="nombre" 
                                    value="{{ old('nombre', $instructor->nombre) }}"
                                    required
-                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
-                                   title="Solo se permiten letras y espacios"
+                                   oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')"
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('nombre') border-red-500 @enderror">
                             @error('nombre')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -54,12 +53,12 @@
                             <label for="documento" class="block text-sm font-medium text-gray-700 mb-2">
                                 Documento de Identidad <span class="text-red-500">*</span>
                             </label>
-                            <input type="number" 
+                            <input type="text" 
                                    name="documento" 
                                    id="documento" 
                                    value="{{ old('documento', $instructor->documento) }}"
                                    required
-                                   min="0"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('documento') border-red-500 @enderror">
                             @error('documento')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -88,11 +87,11 @@
                             <label for="telefono" class="block text-sm font-medium text-gray-700 mb-2">
                                 Teléfono <span class="text-gray-500 text-xs">(Opcional)</span>
                             </label>
-                            <input type="number" 
+                            <input type="text" 
                                    name="telefono" 
                                    id="telefono" 
                                    value="{{ old('telefono', $instructor->telefono) }}"
-                                   min="0"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('telefono') border-red-500 @enderror">
                             @error('telefono')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

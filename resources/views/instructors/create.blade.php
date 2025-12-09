@@ -39,8 +39,7 @@
                                    id="nombre" 
                                    value="{{ old('nombre') }}"
                                    required
-                                   pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
-                                   title="Solo se permiten letras y espacios"
+                                   oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')"
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('nombre') border-red-500 @enderror"
                                    placeholder="Ej: Juan Carlos Pérez">
                             @error('nombre')
@@ -54,12 +53,12 @@
                             <label for="documento" class="block text-sm font-medium text-gray-700 mb-2">
                                 Documento de Identidad <span class="text-red-500">*</span>
                             </label>
-                            <input type="number" 
+                            <input type="text" 
                                    name="documento" 
                                    id="documento" 
                                    value="{{ old('documento') }}"
                                    required
-                                   min="0"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('documento') border-red-500 @enderror"
                                    placeholder="Ej: 1234567890">
                             @error('documento')
@@ -90,11 +89,11 @@
                             <label for="telefono" class="block text-sm font-medium text-gray-700 mb-2">
                                 Teléfono <span class="text-gray-500 text-xs">(Opcional)</span>
                             </label>
-                            <input type="number" 
+                            <input type="text" 
                                    name="telefono" 
                                    id="telefono" 
                                    value="{{ old('telefono') }}"
-                                   min="0"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('telefono') border-red-500 @enderror"
                                    placeholder="Ej: 3001234567">
                             @error('telefono')
