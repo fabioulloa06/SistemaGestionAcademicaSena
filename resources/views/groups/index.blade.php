@@ -27,7 +27,8 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Buscar por número de ficha</label>
                 <div class="flex">
-                    <input type="text" 
+                    <input type="number" 
+                           min="0"
                            name="search" 
                            class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-sena-500 focus:border-sena-500 transition-colors" 
                            placeholder="Buscar ficha..."

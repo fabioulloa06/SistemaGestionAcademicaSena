@@ -53,11 +53,7 @@
                 <span class="mx-4 font-medium">Instructores</span>
             </a>
 
-            <a href="{{ route('competencias.index') }}" 
-               class="flex items-center px-4 py-3 text-gray-300 transition-colors duration-200 transform rounded-md sena-sidebar-link {{ request()->routeIs('programs.*') || request()->routeIs('competencias.*') ? 'active' : '' }}">
-                <i class="bi bi-award text-xl"></i>
-                <span class="mx-4 font-medium">Competencias</span>
-            </a>
+            <!-- Competencias link removed as per request -->
 
             <a href="{{ route('instructor-assignments.index') }}" 
                class="flex items-center px-4 py-3 text-gray-300 transition-colors duration-200 transform rounded-md sena-sidebar-link {{ request()->routeIs('instructor-assignments.*') ? 'active' : '' }}">

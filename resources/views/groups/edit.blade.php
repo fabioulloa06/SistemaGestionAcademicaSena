@@ -39,7 +39,8 @@
                         <label for="numero_ficha" class="block text-sm font-medium text-gray-700 mb-2">
                             Número de Ficha <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" 
+                        <input type="number" 
+                               min="0"
                                name="numero_ficha" 
                                id="numero_ficha"
                                value="{{ old('numero_ficha', $group->numero_ficha) }}"
