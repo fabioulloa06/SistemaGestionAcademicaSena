@@ -44,10 +44,10 @@ class InstructorController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'documento' => 'required|string|unique:instructors,documento',
+            'nombre' => 'required|regex:/^[\pL\s]+$/u|max:255', // Letters only (Unicode support)
+            'documento' => 'required|numeric|unique:instructors,documento',
             'email' => 'required|email|unique:instructors,email',
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => 'nullable|numeric|digits_between:7,15',
             'especialidad' => 'nullable|string|max:255',
             'activo' => 'boolean',
         ]);
@@ -84,10 +84,10 @@ class InstructorController extends Controller
         $instructor = \App\Models\Instructor::findOrFail($id);
 
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'documento' => 'required|string|unique:instructors,documento,' . $instructor->id,
+            'nombre' => 'required|regex:/^[\pL\s]+$/u|max:255',
+            'documento' => 'required|numeric|unique:instructors,documento,' . $instructor->id,
             'email' => 'required|email|unique:instructors,email,' . $instructor->id,
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => 'nullable|numeric|digits_between:7,15',
             'especialidad' => 'nullable|string|max:255',
             'activo' => 'boolean',
         ]);
