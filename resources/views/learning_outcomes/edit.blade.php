@@ -54,6 +54,7 @@
                                    id="codigo"
                                    value="{{ old('codigo', $learningOutcome->codigo) }}"
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('codigo') border-red-500 @enderror" 
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                    required>
                             @error('codigo')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -82,6 +83,7 @@
                                id="nombre"
                                value="{{ old('nombre', $learningOutcome->nombre) }}"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('nombre') border-red-500 @enderror" 
+                               oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')"
                                required>
                         @error('nombre')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

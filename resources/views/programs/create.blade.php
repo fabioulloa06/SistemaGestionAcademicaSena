@@ -44,6 +44,7 @@
                                value="{{ old('nombre') }}"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('nombre') border-red-500 @enderror" 
                                placeholder="Ej: Tecnología en Análisis y Desarrollo de Software"
+                               oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')"
                                required>
                         @error('nombre')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -61,6 +62,7 @@
                                value="{{ old('codigo') }}"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('codigo') border-red-500 @enderror" 
                                placeholder="Ej: 228106"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                required>
                         @error('codigo')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

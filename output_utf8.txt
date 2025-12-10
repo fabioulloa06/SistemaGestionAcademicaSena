@@ -1,0 +1,15 @@
+﻿Attempting to reset password for: admin@sena.edu.co
+User with email 'admin@sena.edu.co' not found.
+Creating user...
+ERROR: SQLSTATE[HY000]: General error: 1 table users has no column named role (Connection: sqlite, SQL: insert into "users" ("name", "email", "password", "role", "tipo_documento", "numero_documento", "nombres", "apellidos", "telefono", "estado", "rol", "updated_at", "created_at") values (Admin Sistema, admin@sena.edu.co, $2y$12$lNKS.po4c6b.mWsNMLhGEuoe6tLwLbrJhga4/XCWgBjQhduFLW8Du, admin, CC, 1234567890, Admin, Sistema, 3000000000, activo, admin, 2025-12-09 22:53:49, 2025-12-09 22:53:49))
+Trace: #0 C:\xampp\htdocs\proyecto_final\SistemaGestionAcademicaSena\vendor\laravel\framework\src\Illuminate\Database\Connection.php(778): Illuminate\Database\Connection->runQueryCallback('insert into "us...', Array, Object(Closure))
+#1 C:\xampp\htdocs\proyecto_final\SistemaGestionAcademicaSena\vendor\laravel\framework\src\Illuminate\Database\Connection.php(559): Illuminate\Database\Connection->run('insert into "us...', Array, Object(Closure))
+#2 C:\xampp\htdocs\proyecto_final\SistemaGestionAcademicaSena\vendor\laravel\framework\src\Illuminate\Database\Connection.php(523): Illuminate\Database\Connection->statement('insert into "us...', Array)
+#3 C:\xampp\htdocs\proyecto_final\SistemaGestionAcademicaSena\vendor\laravel\framework\src\Illuminate\Database\Query\Processors\Processor.php(32): Illuminate\Database\Connection->insert('insert into "us...', Array)
+#4 C:\xampp\htdocs\proyecto_final\SistemaGestionAcademicaSena\vendor\laravel\framework\src\Illuminate\Database\Query\Builder.php(3853): Illuminate\Database\Query\Processors\Processor->processInsertGetId(Object(Illuminate\Database\Query\Builder), 'insert into "us...', Array, 'id')
+#5 C:\xampp\htdocs\proyecto_final\SistemaGestionAcademicaSena\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Builder.php(2235): Illuminate\Database\Query\Builder->insertGetId(Array, 'id')
+#6 C:\xampp\htdocs\proyecto_final\SistemaGestionAcademicaSena\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php(1436): Illuminate\Database\Eloquent\Builder->__call('insertGetId', Array)
+#7 C:\xampp\htdocs\proyecto_final\SistemaGestionAcademicaSena\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php(1401): Illuminate\Database\Eloquent\Model->insertAndSetId(Object(Illuminate\Database\Eloquent\Builder), Array)
+#8 C:\xampp\htdocs\proyecto_final\SistemaGestionAcademicaSena\vendor\laravel\framework\src\Illuminate\Database\Eloquent\Model.php(1240): Illuminate\Database\Eloquent\Model->performInsert(Object(Illuminate\Database\Eloquent\Builder))
+#9 C:\xampp\htdocs\proyecto_final\SistemaGestionAcademicaSena\reset_password.php(46): Illuminate\Database\Eloquent\Model->save()
+#10 {main}

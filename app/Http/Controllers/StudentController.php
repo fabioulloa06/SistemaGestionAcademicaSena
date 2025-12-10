@@ -98,11 +98,15 @@ class StudentController extends Controller
         }
         
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'documento' => 'required|string|unique:students,documento',
+            'nombre' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
+            'documento' => ['required', 'string', 'unique:students,documento', 'regex:/^[0-9]+$/'],
             'email' => 'required|email|unique:students,email',
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]+$/'],
             'group_id' => 'required|exists:groups,id',
+        ], [
+            'nombre.regex' => 'El nombre solo puede contener letras y espacios.',
+            'documento.regex' => 'El documento solo puede contener números.',
+            'telefono.regex' => 'El teléfono solo puede contener números.',
         ]);
 
         $student = \App\Models\Student::create($validated);
@@ -170,11 +174,15 @@ class StudentController extends Controller
         $student = \App\Models\Student::findOrFail($id);
 
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'documento' => 'required|string|unique:students,documento,' . $student->id,
+            'nombre' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
+            'documento' => ['required', 'string', 'unique:students,documento,' . $student->id, 'regex:/^[0-9]+$/'],
             'email' => 'required|email|unique:students,email,' . $student->id,
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]+$/'],
             'group_id' => 'required|exists:groups,id',
+        ], [
+            'nombre.regex' => 'El nombre solo puede contener letras y espacios.',
+            'documento.regex' => 'El documento solo puede contener números.',
+            'telefono.regex' => 'El teléfono solo puede contener números.',
         ]);
 
         $student->update($validated);
