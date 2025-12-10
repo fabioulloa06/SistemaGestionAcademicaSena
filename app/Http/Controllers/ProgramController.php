@@ -55,12 +55,15 @@ class ProgramController extends Controller
         }
         
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'codigo' => 'required|string|unique:programs,codigo',
+            'nombre' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
+            'codigo' => ['required', 'string', 'unique:programs,codigo', 'regex:/^[0-9]+$/'],
             'descripcion' => 'nullable|string',
             'duracion_meses' => 'required|integer|min:1',
             'nivel' => 'required|string',
             'activo' => 'boolean',
+        ], [
+            'nombre.regex' => 'El nombre del programa solo puede contener letras y espacios.',
+            'codigo.regex' => 'El código del programa solo puede contener números.',
         ]);
 
         \App\Models\Program::create($validated);
@@ -107,12 +110,15 @@ class ProgramController extends Controller
         $program = \App\Models\Program::findOrFail($id);
 
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'codigo' => 'required|string|unique:programs,codigo,' . $program->id,
+            'nombre' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
+            'codigo' => ['required', 'string', 'unique:programs,codigo,' . $program->id, 'regex:/^[0-9]+$/'],
             'descripcion' => 'nullable|string',
             'duracion_meses' => 'required|integer|min:1',
             'nivel' => 'required|string',
             'activo' => 'boolean',
+        ], [
+            'nombre.regex' => 'El nombre del programa solo puede contener letras y espacios.',
+            'codigo.regex' => 'El código del programa solo puede contener números.',
         ]);
 
         // Handle checkbox unchecked

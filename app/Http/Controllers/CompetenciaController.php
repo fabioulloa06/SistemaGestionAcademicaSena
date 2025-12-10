@@ -34,10 +34,13 @@ class CompetenciaController extends Controller
         }
         
         $validated = $request->validate([
-            'codigo' => 'required|string|unique:competencias,codigo',
-            'nombre' => 'required|string|max:255',
+            'codigo' => ['required', 'string', 'unique:competencias,codigo', 'regex:/^[0-9]+$/'],
+            'nombre' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
             'descripcion' => 'nullable|string',
             'activo' => 'boolean',
+        ], [
+            'codigo.regex' => 'El código solo puede contener números.',
+            'nombre.regex' => 'El nombre solo puede contener letras y espacios.',
         ]);
 
         $program->competencias()->create($validated);
@@ -72,10 +75,13 @@ class CompetenciaController extends Controller
         }
         
         $validated = $request->validate([
-            'codigo' => 'required|string|unique:competencias,codigo,' . $competencia->id,
-            'nombre' => 'required|string|max:255',
+            'codigo' => ['required', 'string', 'unique:competencias,codigo,' . $competencia->id, 'regex:/^[0-9]+$/'],
+            'nombre' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
             'descripcion' => 'nullable|string',
             'activo' => 'boolean',
+        ], [
+            'codigo.regex' => 'El código solo puede contener números.',
+            'nombre.regex' => 'El nombre solo puede contener letras y espacios.',
         ]);
 
         $competencia->update($validated);

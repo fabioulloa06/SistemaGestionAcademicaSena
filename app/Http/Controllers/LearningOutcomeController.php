@@ -34,10 +34,13 @@ class LearningOutcomeController extends Controller
         }
         
         $validated = $request->validate([
-            'codigo' => 'required|string|unique:learning_outcomes,codigo',
-            'nombre' => 'required|string|max:255',
+            'codigo' => ['required', 'string', 'unique:learning_outcomes,codigo', 'regex:/^[0-9]+$/'],
+            'nombre' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
             'descripcion' => 'nullable|string',
             'activo' => 'boolean',
+        ], [
+            'codigo.regex' => 'El código solo puede contener números.',
+            'nombre.regex' => 'El nombre solo puede contener letras y espacios.',
         ]);
 
         $competencia->learningOutcomes()->create($validated);
@@ -71,10 +74,13 @@ class LearningOutcomeController extends Controller
         }
         
         $validated = $request->validate([
-            'codigo' => 'required|string|unique:learning_outcomes,codigo,' . $learningOutcome->id,
-            'nombre' => 'required|string|max:255',
+            'codigo' => ['required', 'string', 'unique:learning_outcomes,codigo,' . $learningOutcome->id, 'regex:/^[0-9]+$/'],
+            'nombre' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
             'descripcion' => 'nullable|string',
             'activo' => 'boolean',
+        ], [
+            'codigo.regex' => 'El código solo puede contener números.',
+            'nombre.regex' => 'El nombre solo puede contener letras y espacios.',
         ]);
 
         $learningOutcome->update($validated);

@@ -44,6 +44,7 @@
                                id="nombre"
                                value="{{ old('nombre', $student->nombre) }}"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('nombre') border-red-500 @enderror" 
+                               oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')"
                                required>
                         @error('nombre')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -60,6 +61,7 @@
                                id="documento"
                                value="{{ old('documento', $student->documento) }}"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('documento') border-red-500 @enderror" 
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                required>
                         @error('documento')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -91,7 +93,8 @@
                                name="telefono" 
                                id="telefono"
                                value="{{ old('telefono', $student->telefono) }}"
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('telefono') border-red-500 @enderror">
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('telefono') border-red-500 @enderror"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         @error('telefono')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
