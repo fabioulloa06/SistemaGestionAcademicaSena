@@ -38,17 +38,18 @@
                         <label for="numero_ficha" class="block text-sm font-medium text-gray-700 mb-2">
                             Número de Ficha <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" 
+                        <input type="number" 
+                               min="0"
                                name="numero_ficha" 
                                id="numero_ficha"
                                value="{{ old('numero_ficha') }}"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('numero_ficha') border-red-500 @enderror" 
-                               placeholder="Ej: 228106-001"
+                               placeholder="Ej: 228106"
                                required>
                         @error('numero_ficha')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
-                        <p class="mt-1 text-xs text-gray-500">Formato sugerido: Código del programa + número secuencial</p>
+                        <p class="mt-1 text-xs text-gray-500">Solo números permitidos</p>
                     </div>
 
                     <!-- Programa de Formación -->
@@ -122,6 +123,7 @@
                             <input type="date" 
                                    name="fecha_inicio" 
                                    id="fecha_inicio"
+                                   min="{{ date('Y-m-d') }}"
                                    value="{{ old('fecha_inicio', date('Y-m-d')) }}"
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('fecha_inicio') border-red-500 @enderror" 
                                    required>

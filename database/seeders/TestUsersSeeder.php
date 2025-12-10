@@ -38,7 +38,7 @@ class TestUsersSeeder extends Seeder
         );
 
         // Estudiante
-        User::updateOrCreate(
+        $studentUser = User::updateOrCreate(
             ['email' => 'estudiante@sena.edu.co'],
             [
                 'name' => 'Juan Pérez',
@@ -46,6 +46,19 @@ class TestUsersSeeder extends Seeder
                 'password' => Hash::make('password123'),
                 'role' => 'student',
                 'email_verified_at' => now(),
+            ]
+        );
+
+        // Crear perfil de estudiante asociado
+        \App\Models\Student::updateOrCreate(
+            ['user_id' => $studentUser->id],
+            [
+                'user_id' => $studentUser->id,
+                'nombre' => 'Juan Pérez',
+                'documento' => '1000000001',
+                'email' => 'estudiante@sena.edu.co',
+                'telefono' => '3001234567',
+                'activo' => true,
             ]
         );
 

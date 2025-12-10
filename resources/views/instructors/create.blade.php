@@ -39,11 +39,13 @@
                                    id="nombre" 
                                    value="{{ old('nombre') }}"
                                    required
+                                   oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')"
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('nombre') border-red-500 @enderror"
                                    placeholder="Ej: Juan Carlos Pérez">
                             @error('nombre')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
+                            <p class="mt-1 text-xs text-gray-500">Solo letras y espacios</p>
                         </div>
 
                         <!-- Documento -->
@@ -56,11 +58,13 @@
                                    id="documento" 
                                    value="{{ old('documento') }}"
                                    required
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('documento') border-red-500 @enderror"
                                    placeholder="Ej: 1234567890">
                             @error('documento')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
+                            <p class="mt-1 text-xs text-gray-500">Solo números</p>
                         </div>
 
                         <!-- Email -->
@@ -89,11 +93,13 @@
                                    name="telefono" 
                                    id="telefono" 
                                    value="{{ old('telefono') }}"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('telefono') border-red-500 @enderror"
                                    placeholder="Ej: 3001234567">
                             @error('telefono')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
+                            <p class="mt-1 text-xs text-gray-500">Solo números</p>
                         </div>
 
                         <!-- Especialidad -->

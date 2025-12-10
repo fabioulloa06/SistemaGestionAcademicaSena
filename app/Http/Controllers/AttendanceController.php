@@ -165,7 +165,7 @@ class AttendanceController extends Controller
             'instructor_id' => 'required|exists:instructors,id',
             'competencia_id' => 'required|exists:competencias,id',
             'learning_outcome_id' => 'nullable|exists:learning_outcomes,id',
-            'fecha' => 'required|date',
+            'fecha' => 'required|date|before_or_equal:today',
             'inasistencias' => 'required|array',
             'inasistencias.*' => 'nullable|boolean',
             'inasistencias.*.observaciones' => 'nullable|string|max:500',

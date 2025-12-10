@@ -57,11 +57,11 @@ class GroupController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'numero_ficha' => 'required|string|unique:groups,numero_ficha',
+            'numero_ficha' => 'required|numeric|unique:groups,numero_ficha',
             'program_id' => 'required|exists:programs,id',
             'instructor_lider_id' => 'nullable|exists:users,id',
             'jornada' => 'required|in:mañana,tarde,noche,mixta',
-            'fecha_inicio' => 'required|date',
+            'fecha_inicio' => 'required|date|after_or_equal:today',
             'fecha_fin' => 'required|date|after:fecha_inicio',
             'activo' => 'boolean',
         ]);
@@ -100,7 +100,7 @@ class GroupController extends Controller
         $group = \App\Models\Group::findOrFail($id);
 
         $validated = $request->validate([
-            'numero_ficha' => 'required|string|unique:groups,numero_ficha,' . $group->id,
+            'numero_ficha' => 'required|numeric|unique:groups,numero_ficha,' . $group->id,
             'program_id' => 'required|exists:programs,id',
             'instructor_lider_id' => 'nullable|exists:users,id',
             'jornada' => 'required|in:mañana,tarde,noche,mixta',
