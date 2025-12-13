@@ -9,9 +9,6 @@ class StudentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -68,11 +65,6 @@ class StudentController extends Controller
     {
         $user = auth()->user();
         
-        // Coordinador solo puede ver, no crear
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para crear estudiantes. Tu rol es de revisión y vigilancia.');
-        }
-        
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para crear estudiantes.');
         }
@@ -88,11 +80,6 @@ class StudentController extends Controller
     {
         $user = auth()->user();
         
-        // Coordinador solo puede ver, no crear
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para crear estudiantes. Tu rol es de revisión y vigilancia.');
-        }
-        
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para crear estudiantes.');
         }
@@ -102,7 +89,7 @@ class StudentController extends Controller
             'documento' => 'required|string|unique:students,documento',
             'email' => 'required|email|unique:students,email',
             'telefono' => 'nullable|string|max:20',
-            'group_id' => 'required|exists:groups,id',
+            'group_id' => 'nullable|exists:groups,id',
         ]);
 
         $student = \App\Models\Student::create($validated);
@@ -137,11 +124,6 @@ class StudentController extends Controller
     {
         $user = auth()->user();
         
-        // Coordinador solo puede ver, no editar
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para editar estudiantes. Tu rol es de revisión y vigilancia.');
-        }
-        
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para editar estudiantes.');
         }
@@ -158,11 +140,6 @@ class StudentController extends Controller
     {
         $user = auth()->user();
         
-        // Coordinador solo puede ver, no editar
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para editar estudiantes. Tu rol es de revisión y vigilancia.');
-        }
-        
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para editar estudiantes.');
         }
@@ -174,7 +151,7 @@ class StudentController extends Controller
             'documento' => 'required|string|unique:students,documento,' . $student->id,
             'email' => 'required|email|unique:students,email,' . $student->id,
             'telefono' => 'nullable|string|max:20',
-            'group_id' => 'required|exists:groups,id',
+            'group_id' => 'nullable|exists:groups,id',
         ]);
 
         $student->update($validated);
@@ -206,11 +183,6 @@ class StudentController extends Controller
     public function destroy(string $id)
     {
         $user = auth()->user();
-        
-        // Coordinador solo puede ver, no eliminar
-        if ($user->isCoordinator()) {
-            abort(403, 'No tienes permiso para eliminar estudiantes. Tu rol es de revisión y vigilancia.');
-        }
         
         if (!$user->canManageAcademicStructure()) {
             abort(403, 'No tienes permiso para eliminar estudiantes.');
