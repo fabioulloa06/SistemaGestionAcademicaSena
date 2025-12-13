@@ -46,6 +46,10 @@ class GroupController extends Controller
      */
     public function create()
     {
+        if (!auth()->user()->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para crear grupos.');
+        }
+
         $programs = \App\Models\Program::where('activo', true)->get();
         $instructors = \App\Models\User::where('role', 'instructor')->get();
         return view('groups.create', compact('programs', 'instructors'));
@@ -56,6 +60,10 @@ class GroupController extends Controller
      */
     public function store(Request $request)
     {
+        if (!auth()->user()->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para crear grupos.');
+        }
+
         $validated = $request->validate([
             'numero_ficha' => 'required|numeric|unique:groups,numero_ficha',
             'program_id' => 'required|exists:programs,id',
@@ -86,6 +94,10 @@ class GroupController extends Controller
      */
     public function edit(string $id)
     {
+        if (!auth()->user()->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para editar grupos.');
+        }
+
         $group = \App\Models\Group::findOrFail($id);
         $programs = \App\Models\Program::where('activo', true)->get();
         $instructors = \App\Models\User::where('role', 'instructor')->get();
@@ -97,6 +109,10 @@ class GroupController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        if (!auth()->user()->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para actualizar grupos.');
+        }
+
         $group = \App\Models\Group::findOrFail($id);
 
         $validated = $request->validate([
@@ -125,6 +141,10 @@ class GroupController extends Controller
      */
     public function destroy(string $id)
     {
+        if (!auth()->user()->canManageAcademicStructure()) {
+            abort(403, 'No tienes permiso para eliminar grupos.');
+        }
+
         $group = \App\Models\Group::findOrFail($id);
         $group->delete();
 
