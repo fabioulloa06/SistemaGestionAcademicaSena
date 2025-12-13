@@ -102,25 +102,22 @@
                     </div>
 
                     <!-- Grupo/Ficha -->
-                    <div>
-                        <label for="group_id" class="block text-sm font-medium text-gray-700 mb-2">
-                            Grupo/Ficha <span class="text-red-500">*</span>
-                        </label>
-                        <select name="group_id" 
-                                id="group_id"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500 @error('group_id') border-red-500 @enderror" 
-                                required>
-                            <option value="">Seleccione un grupo</option>
-                            @foreach($groups as $group)
-                                <option value="{{ $group->id }}" {{ old('group_id') == $group->id ? 'selected' : '' }}>
-                                    {{ $group->numero_ficha }} - {{ $group->program->nombre ?? 'N/A' }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('group_id')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    @if(auth()->user()->canManageAcademicStructure())
+            <div>
+                <label for="group_id" class="block text-sm font-medium text-gray-700">Ficha (Grupo) <span class="text-gray-500 font-normal">(Opcional)</span></label>
+                <select name="group_id" id="group_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-sena-500 focus:ring-sena-500">
+                    <option value="">Seleccione una ficha...</option>
+                    @foreach($groups as $group)
+                        <option value="{{ $group->id }}" {{ old('group_id') == $group->id ? 'selected' : '' }}>
+                            {{ $group->numero_ficha }} - {{ $group->program->nombre }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('group_id')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+            @endif
 
                     <!-- Estado Activo -->
                     <div class="flex items-center">
