@@ -167,7 +167,7 @@ class AttendanceController extends Controller
             'learning_outcome_id' => 'nullable|exists:learning_outcomes,id',
             'fecha' => 'required|date|before_or_equal:today',
             'inasistencias' => 'required|array',
-            'inasistencias.*' => 'nullable|boolean',
+            'inasistencias.*.is_absent' => 'nullable|boolean',
             'inasistencias.*.observaciones' => 'nullable|string|max:500',
         ]);
 
@@ -186,7 +186,7 @@ class AttendanceController extends Controller
 
         foreach ($validated['inasistencias'] as $studentId => $data) {
             // Solo registrar si hay inasistencia marcada
-            if (!isset($data) || !$data) {
+            if (!isset($data['is_absent']) || !$data['is_absent']) {
                 continue;
             }
 

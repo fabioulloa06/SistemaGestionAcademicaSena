@@ -11,7 +11,7 @@
             <h1 class="text-2xl font-bold text-gray-900">Listado de Fichas</h1>
             <p class="text-sm text-gray-600 mt-1">Gestiona los grupos de formación</p>
         </div>
-        @if(!auth()->user()->isCoordinator())
+        @if(auth()->user()->canManageAcademicStructure())
         <a href="{{ route('groups.create') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-sena-600 to-sena-700 text-white font-semibold rounded-lg shadow-md hover:from-sena-700 hover:to-sena-800 transition-all duration-200 transform hover:scale-105">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -22,40 +22,65 @@
     </div>
 
     <!-- Filtros -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <form method="GET" action="{{ route('groups.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 relative" x-data="{
+        submit() {
+            $el.closest('form').submit();
+        }
+    }">
+        <!-- Loading Overlay -->
+        <div class="absolute inset-0 bg-white/50 z-10 flex items-center justify-center rounded-xl" 
+             style="display: none;" 
+             onclick="event.stopPropagation()"
+             x-show="false" 
+             x-transition.opacity
+             id="search-loading">
+            <svg class="animate-spin h-8 w-8 text-sena-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+
+        <form method="GET" action="{{ route('groups.index') }}" 
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end"
+              @submit="document.getElementById('search-loading').style.display = 'flex'">
+            
+            <div class="w-full">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Buscar por número de ficha</label>
-                <div class="flex">
+                <div class="relative">
                     <input type="number" 
                            min="0"
                            name="search" 
-                           class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-sena-500 focus:border-sena-500 transition-colors" 
-                           placeholder="Buscar ficha..."
-                           value="{{ request('search') }}">
-                    <button type="submit" class="px-4 py-2 bg-sena-600 text-white rounded-r-lg hover:bg-sena-700 transition-colors">
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sena-500 focus:border-sena-500 transition-colors pr-10" 
+                           placeholder="Escribe para buscar..."
+                           value="{{ request('search') }}"
+                           @input.debounce.500ms="submit()">
+                    <div class="absolute inset-y-0 right-0 max-h-[42px] flex items-center pr-3 pointer-events-none text-gray-400">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
-                    </button>
+                    </div>
                 </div>
             </div>
             
-            <div>
+            <div class="w-full">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Filtrar por programa</label>
-                <select name="programa_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sena-500 focus:border-sena-500 transition-colors">
-                    <option value="">Todos los programas</option>
-                    @foreach($programs as $program)
-                        <option value="{{ $program->id }}" {{ request('programa_id') == $program->id ? 'selected' : '' }}>
-                            {{ $program->nombre }}
-                        </option>
-                    @endforeach
-                </select>
+                <div @change="submit()">
+                    <x-searchable-select name="programa_id" placeholder="Buscar programa..." :value="request('programa_id')">
+                        <option value="">Todos los programas</option>
+                        @foreach($programs as $program)
+                            <option value="{{ $program->id }}" {{ request('programa_id') == $program->id ? 'selected' : '' }}>
+                                {{ $program->nombre }}
+                            </option>
+                        @endforeach
+                    </x-searchable-select>
+                </div>
             </div>
             
-            <div>
+            <div class="w-full">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Filtrar por jornada</label>
-                <select name="jornada" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sena-500 focus:border-sena-500 transition-colors">
+                <select name="jornada" 
+                        @change="submit()"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sena-500 focus:border-sena-500 transition-colors h-[42px]">
                     <option value="">Todas las jornadas</option>
                     <option value="mañana" {{ request('jornada') == 'mañana' ? 'selected' : '' }}>Mañana</option>
                     <option value="tarde" {{ request('jornada') == 'tarde' ? 'selected' : '' }}>Tarde</option>
@@ -124,7 +149,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                         </svg>
                                     </a>
-                                    @if(!auth()->user()->isCoordinator())
+                                    @if(auth()->user()->canManageAcademicStructure())
                                     <a href="{{ route('groups.edit', $group) }}" 
                                        class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors" 
                                        title="Editar">

@@ -283,7 +283,7 @@
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <label class="inline-flex items-center cursor-pointer">
                                                     <input type="checkbox" 
-                                                           name="inasistencias[{{ $student->id }}]" 
+                                                           name="inasistencias[{{ $student->id }}][is_absent]" 
                                                            value="1"
                                                            class="rounded border-gray-300 text-sena-600 shadow-sm focus:border-sena-500 focus:ring-sena-500 h-5 w-5">
                                                     <span class="ml-2 text-sm text-gray-700">Falta</span>
